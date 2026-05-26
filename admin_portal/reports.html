@@ -18,10 +18,10 @@
         }
         body {
             font-family: 'Inter', sans-serif;
-            background: #f1f5f9;
+            background: #f8fafc;
         }
 
-        /* Sidebar Styles */
+        /* Sidebar */
         .sidebar {
             position: fixed;
             top: 0;
@@ -34,144 +34,56 @@
             z-index: 100;
             overflow-y: auto;
         }
-        .sidebar.closed {
-            width: 80px;
-        }
+        .sidebar.closed { width: 80px; }
         .sidebar.closed .sidebar-nav span,
         .sidebar.closed .logo-text,
         .sidebar.closed .logo-sub,
-        .sidebar.closed .user-details {
-            display: none;
-        }
-        .sidebar.closed .sidebar-nav .nav-item {
-            justify-content: center;
-            padding: 12px;
-        }
-        .sidebar-header {
-            padding: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .logo-icon {
-            font-size: 2rem;
-            color: #4db8ff;
-        }
-        .logo-text {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: white;
-        }
-        .logo-sub {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            margin-top: 6px;
-            padding-left: 52px;
-        }
+        .sidebar.closed .user-details { display: none; }
+        .sidebar.closed .sidebar-nav .nav-item { justify-content: center; padding: 12px; }
+        .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { font-size: 2rem; color: #4db8ff; }
+        .logo-text { font-size: 1.3rem; font-weight: 700; color: white; }
+        .logo-sub { font-size: 0.7rem; color: #94a3b8; margin-top: 6px; padding-left: 52px; }
         .toggle-btn {
-            position: absolute;
-            top: 20px;
-            right: -12px;
-            background: #287b9e;
-            border: 2px solid #0f2b3d;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            z-index: 101;
+            position: absolute; top: 20px; right: -12px; background: #287b9e;
+            border: 2px solid #0f2b3d; border-radius: 50%; width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            color: white; z-index: 101;
         }
-        .sidebar-nav {
-            padding: 0 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .sidebar-nav { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
         .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            color: #cbd5e6;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+            border-radius: 12px; color: #cbd5e6; text-decoration: none;
+            font-weight: 500; font-size: 0.9rem; transition: all 0.2s;
         }
-        .nav-item i {
-            width: 24px;
-        }
-        .nav-item:hover {
-            background: rgba(77, 184, 255, 0.12);
-            color: white;
-        }
-        .nav-item.active {
-            background: #287b9e;
-            color: white;
-        }
+        .nav-item i { width: 24px; }
+        .nav-item:hover { background: rgba(77,184,255,0.12); color: white; }
+        .nav-item.active { background: #287b9e; color: white; }
         .sidebar-footer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: #287b9e;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .user-name {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: white;
-        }
+        .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .user-avatar { width: 40px; height: 40px; background: #287b9e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .user-name { font-weight: 600; font-size: 0.85rem; color: white; }
         .logout-btn {
-            width: 100%;
-            background: rgba(220, 38, 38, 0.2);
-            border: none;
-            color: #fca5a5;
-            padding: 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            width: 100%; background: rgba(220,38,38,0.2); border: none; color: #fca5a5;
+            padding: 10px; border-radius: 10px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; gap: 8px;
         }
-        .logout-btn:hover {
-            background: rgba(220, 38, 38, 0.4);
-            color: white;
-        }
+        .logout-btn:hover { background: rgba(220,38,38,0.4); color: white; }
 
         /* Main Content */
         .main-content {
             margin-left: 280px;
-            padding: 24px 32px;
+            padding: 28px 36px;
             transition: all 0.3s;
             min-height: 100vh;
         }
-        .main-content.expanded {
-            margin-left: 80px;
-        }
+        .main-content.expanded { margin-left: 80px; }
+
+        /* Page Header */
         .page-header {
             margin-bottom: 32px;
         }
@@ -180,25 +92,27 @@
             font-weight: 700;
             color: #0f2b3d;
             margin-bottom: 8px;
+            letter-spacing: -0.3px;
         }
         .page-header p {
             color: #64748b;
             font-size: 0.9rem;
         }
 
-        /* Card */
-        .card {
+        /* Filter Card */
+        .filter-card {
             background: white;
             border-radius: 20px;
             padding: 24px;
-            border: 1px solid #e2e8f0;
+            margin-bottom: 28px;
+            border: 1px solid #e9eef3;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
         .filter-row {
             display: flex;
             gap: 16px;
             align-items: flex-end;
             flex-wrap: wrap;
-            margin-bottom: 24px;
         }
         .filter-group {
             display: flex;
@@ -206,164 +120,210 @@
             gap: 8px;
         }
         .filter-group label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .filter-group input {
-            padding: 10px 16px;
+            padding: 10px 14px;
             border: 1.5px solid #e2e8f0;
             border-radius: 12px;
             font-size: 0.9rem;
             font-family: 'Inter', sans-serif;
+            background: white;
+            width: 200px;
         }
         .filter-group input:focus {
             outline: none;
             border-color: #287b9e;
+            box-shadow: 0 0 0 2px rgba(40,123,158,0.1);
         }
-        .btn-primary {
+        .btn-generate {
             background: #287b9e;
             color: white;
             border: none;
             padding: 10px 24px;
-            border-radius: 12px;
+            border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
             font-size: 0.85rem;
+            transition: all 0.2s;
         }
-        .btn-primary:hover {
+        .btn-generate:hover {
             background: #1a5f7a;
+            transform: translateY(-1px);
         }
 
-        /* Stats */
-        .stats-summary {
+        /* Stats Grid */
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
-        .summary-item {
-            background: #f8fafc;
+        .stat-card {
+            background: white;
             padding: 20px;
-            border-radius: 16px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            border: 1px solid #e9eef3;
+            transition: all 0.2s;
         }
-        .summary-item .value {
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .stat-value {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #287b9e;
+            color: #0f2b3d;
+            margin-bottom: 6px;
         }
-        .summary-item .label {
+        .stat-label {
             font-size: 0.7rem;
             color: #64748b;
-            margin-top: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* Table */
+        /* Table Card */
+        .table-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e9eef3;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #eef2f8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .table-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0f2b3d;
+        }
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: #287b9e;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .refresh-btn:hover {
+            text-decoration: underline;
+        }
         .table-wrapper {
             overflow-x: auto;
-            margin-top: 24px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
         }
         th, td {
-            padding: 12px;
+            padding: 14px 16px;
             text-align: left;
             border-bottom: 1px solid #eef2f8;
             font-size: 0.85rem;
         }
         th {
-            background: #f8fafc;
+            background: #fafcff;
             font-weight: 600;
-            color: #0f2b3d;
+            color: #1e293b;
+        }
+        tr:hover td {
+            background: #fafcff;
         }
         .empty-state {
             text-align: center;
-            padding: 48px;
+            padding: 60px;
             color: #94a3b8;
         }
-
-        /* Button Group */
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-            justify-content: flex-end;
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 500;
         }
-        .btn-pdf {
+        .status-paid {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .status-nobill {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        .amount {
+            font-weight: 600;
+            color: #0f2b3d;
+        }
+
+        /* Export Buttons */
+        .export-section {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .btn-export {
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-export-pdf {
             background: #dc2626;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
         }
-        .btn-pdf:hover {
+        .btn-export-pdf:hover {
             background: #b91c1c;
+            transform: translateY(-1px);
         }
-        .btn-excel {
+        .btn-export-excel {
             background: #059669;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
         }
-        .btn-excel:hover {
+        .btn-export-excel:hover {
             background: #047857;
+            transform: translateY(-1px);
         }
 
-        /* Responsive */
+        @media (max-width: 1000px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
         @media (max-width: 768px) {
-            .sidebar {
-                width: 80px;
-            }
-            .sidebar .logo-text,
-            .sidebar .logo-sub,
-            .sidebar .user-details {
-                display: none;
-            }
-            .sidebar .nav-item {
-                justify-content: center;
-                padding: 12px;
-            }
-            .sidebar .nav-item span {
-                display: none;
-            }
-            .main-content {
-                margin-left: 80px;
-                padding: 20px;
-            }
-            .stats-summary {
-                grid-template-columns: 1fr;
-            }
-            .filter-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
+            .sidebar { width: 80px; }
+            .sidebar .logo-text, .sidebar .logo-sub, .sidebar .user-details { display: none; }
+            .sidebar .nav-item { justify-content: center; padding: 12px; }
+            .sidebar .nav-item span { display: none; }
+            .main-content { margin-left: 80px; padding: 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .filter-row { flex-direction: column; align-items: stretch; }
+            .filter-group input { width: 100%; }
         }
     </style>
 </head>
 <body>
 
 <aside class="sidebar" id="sidebar">
-    <div class="toggle-btn" id="toggleSidebar">
-        <i class="fas fa-chevron-left"></i>
-    </div>
+    <div class="toggle-btn" id="toggleSidebar"><i class="fas fa-chevron-left"></i></div>
     <div class="sidebar-header">
-        <div class="logo-area">
-            <i class="fas fa-hospital-user logo-icon"></i>
-            <div class="logo-text">Wellmeadows</div>
-        </div>
+        <div class="logo-area"><i class="fas fa-hospital-user logo-icon"></i><div class="logo-text">Wellmeadows</div></div>
         <div class="logo-sub">Admin Portal</div>
     </div>
     <nav class="sidebar-nav">
@@ -375,23 +335,19 @@
         <a href="reports.html" class="nav-item active"><i class="fas fa-chart-line"></i><span>Reports</span></a>
     </nav>
     <div class="sidebar-footer">
-        <div class="user-info">
-            <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
-            <div class="user-details">
-                <div class="user-name" id="adminName">Admin</div>
-            </div>
-        </div>
+        <div class="user-info"><div class="user-avatar"><i class="fas fa-user-circle"></i></div><div class="user-details"><div class="user-name" id="adminName">Admin</div></div></div>
         <button class="logout-btn" id="logoutBtn">Logout</button>
     </div>
 </aside>
 
 <main class="main-content" id="mainContent">
     <div class="page-header">
-        <h1>Reports & Analytics</h1>
-        <p>Generate and export appointment reports</p>
+        <h1>Financial Reports</h1>
+        <p>Generate and export revenue reports from paid appointments</p>
     </div>
 
-    <div class="card">
+    <!-- Filter Section -->
+    <div class="filter-card">
         <div class="filter-row">
             <div class="filter-group">
                 <label>Start Date</label>
@@ -401,46 +357,59 @@
                 <label>End Date</label>
                 <input type="date" id="endDate">
             </div>
-            <button class="btn-primary" onclick="loadReport()">Generate Report</button>
+            <button class="btn-generate" onclick="loadReport()">Generate Report</button>
         </div>
+    </div>
 
-        <div class="stats-summary">
-            <div class="summary-item">
-                <div class="value" id="totalAppointments">0</div>
-                <div class="label">Total Appointments</div>
-            </div>
-            <div class="summary-item">
-                <div class="value" id="totalPatients">0</div>
-                <div class="label">Unique Patients</div>
-            </div>
-            <div class="summary-item">
-                <div class="value" id="totalRevenue">₱0</div>
-                <div class="label">Revenue</div>
-            </div>
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="totalAppointments">0</div>
+            <div class="stat-label">Total Appointments</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-value" id="uniquePatients">0</div>
+            <div class="stat-label">Unique Patients</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="paidRevenue">₱0</div>
+            <div class="stat-label">Paid Revenue</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="pendingRevenue">₱0</div>
+            <div class="stat-label">Pending Revenue</div>
+        </div>
+    </div>
 
+    <!-- Report Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3>Appointment Financial Details</h3>
+            <button class="refresh-btn" onclick="loadReport()">Refresh</button>
+        </div>
         <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Patient Name</th>
-                        <th>Doctor Name</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
                         <th>Status</th>
-                        <th>Reason</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Service</th>
                     </tr>
                 </thead>
                 <tbody id="reportTable">
                     <tr>
-                        <td colspan="5" class="empty-state">Select date range and click Generate Report</td>
+                        <td colspan="7" class="empty-state">Select date range and generate report</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-
-        <div class="button-group">
-            <button class="btn-pdf" onclick="exportToPDF()">Export to PDF</button>
-            <button class="btn-excel" onclick="exportToExcel()">Export to Excel</button>
+        <div class="export-section">
+            <button class="btn-export btn-export-pdf" onclick="exportToPDF()">Export PDF</button>
+            <button class="btn-export btn-export-excel" onclick="exportToExcel()">Export Excel</button>
         </div>
     </div>
 </main>
@@ -452,12 +421,10 @@
 
     let currentReportData = [];
 
-    // Set default dates (last 30 days)
     function setDefaultDates() {
         const endDate = new Date();
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - 30);
-        
         document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
         document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
     }
@@ -471,10 +438,7 @@
             startDate = document.getElementById('startDate').value;
             endDate = document.getElementById('endDate').value;
         }
-        
-        console.log('Fetching appointments from', startDate, 'to', endDate);
-        
-        // Fetch appointments with patient and doctor details
+
         const { data: appointments, error } = await supabaseClient
             .from('appointment')
             .select('*')
@@ -482,152 +446,120 @@
             .lte('appointment_date', endDate)
             .order('appointment_date', { ascending: true });
         
-        if (error) {
-            console.error('Error fetching appointments:', error);
-            document.getElementById('reportTable').innerHTML = '<tr><td colspan="5" class="empty-state">Error loading data</td></tr>';
-            return;
-        }
-        
-        console.log('Appointments found:', appointments?.length || 0);
-        
-        if (!appointments || appointments.length === 0) {
-            document.getElementById('reportTable').innerHTML = '<tr><td colspan="5" class="empty-state">No appointments found for selected date range</td></tr>';
+        if (error || !appointments || appointments.length === 0) {
+            document.getElementById('reportTable').innerHTML = '<tr><td colspan="7" class="empty-state">No appointments found</td></tr>';
             document.getElementById('totalAppointments').textContent = '0';
-            document.getElementById('totalPatients').textContent = '0';
-            document.getElementById('totalRevenue').textContent = '₱0';
+            document.getElementById('uniquePatients').textContent = '0';
+            document.getElementById('paidRevenue').textContent = '₱0';
+            document.getElementById('pendingRevenue').textContent = '₱0';
             currentReportData = [];
             return;
         }
-        
-        // Fetch all patients and staff for mapping
-        const [patientsRes, staffRes] = await Promise.all([
+
+        const [patientsRes, staffRes, billsRes] = await Promise.all([
             supabaseClient.from('patient').select('patient_id, first_name, last_name'),
-            supabaseClient.from('staff').select('staff_id, first_name, last_name')
+            supabaseClient.from('staff').select('staff_id, first_name, last_name'),
+            supabaseClient.from('bill').select('appointment_id, total_amount, status')
         ]);
-        
+
         const patientMap = {};
-        patientsRes.data?.forEach(p => {
-            patientMap[p.patient_id] = `${p.first_name} ${p.last_name}`;
-        });
+        patientsRes.data?.forEach(p => { patientMap[p.patient_id] = `${p.first_name} ${p.last_name}`; });
         
         const staffMap = {};
-        staffRes.data?.forEach(s => {
-            staffMap[s.staff_id] = `Dr. ${s.first_name} ${s.last_name}`;
+        staffRes.data?.forEach(s => { staffMap[s.staff_id] = `Dr. ${s.first_name} ${s.last_name}`; });
+        
+        const billMap = {};
+        billsRes.data?.forEach(b => { billMap[b.appointment_id] = { amount: b.total_amount, status: b.status }; });
+
+        currentReportData = appointments.map(apt => {
+            const bill = billMap[apt.appointment_id];
+            return {
+                date: apt.appointment_date,
+                patient_name: patientMap[apt.patient_id] || 'Unknown',
+                doctor_name: staffMap[apt.staff_id] || 'Unknown',
+                status: apt.status || 'Scheduled',
+                amount: bill ? bill.amount : 0,
+                payment: bill ? bill.status : 'No Bill',
+                reason: apt.reason || '-'
+            };
         });
-        
-        // Build report data
-        currentReportData = appointments.map(apt => ({
-            date: apt.appointment_date,
-            patient_name: patientMap[apt.patient_id] || 'Unknown Patient',
-            doctor_name: staffMap[apt.staff_id] || 'Unknown Doctor',
-            status: apt.status || 'Scheduled',
-            reason: apt.reason || '-'
-        }));
-        
-        // Calculate statistics
-        const totalAppointments = currentReportData.length;
-        const uniquePatients = new Set(appointments.map(a => a.patient_id)).size;
-        const totalRevenue = totalAppointments * 800;
-        
-        document.getElementById('totalAppointments').textContent = totalAppointments;
-        document.getElementById('totalPatients').textContent = uniquePatients;
-        document.getElementById('totalRevenue').textContent = `₱${totalRevenue.toLocaleString()}`;
-        
-        // Render table
+
+        const total = currentReportData.length;
+        const unique = new Set(appointments.map(a => a.patient_id)).size;
+        let paid = 0, pending = 0;
+        currentReportData.forEach(row => {
+            if (row.payment === 'paid') paid += row.amount;
+            else if (row.payment === 'pending') pending += row.amount;
+        });
+
+        document.getElementById('totalAppointments').textContent = total;
+        document.getElementById('uniquePatients').textContent = unique;
+        document.getElementById('paidRevenue').textContent = `₱${paid.toLocaleString()}`;
+        document.getElementById('pendingRevenue').textContent = `₱${pending.toLocaleString()}`;
+
         const tbody = document.getElementById('reportTable');
-        tbody.innerHTML = currentReportData.map(row => `
-            <tr>
-                <td>${row.date}</td>
-                <td><strong>${row.patient_name}</strong></td>
-                <td>${row.doctor_name}</td>
-                <td><span style="background: #f1f5f9; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem;">${row.status}</span></td>
-                <td>${row.reason}</td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = currentReportData.map(row => {
+            let paymentClass = '';
+            let paymentText = '';
+            if (row.payment === 'paid') { paymentClass = 'status-paid'; paymentText = 'Paid'; }
+            else if (row.payment === 'pending') { paymentClass = 'status-pending'; paymentText = 'Pending'; }
+            else { paymentClass = 'status-nobill'; paymentText = 'No Bill'; }
+            
+            let statusClass = row.status === 'Completed' ? 'status-paid' : 'status-pending';
+            
+            return `
+                <tr>
+                    <td>${row.date}</td>
+                    <td><strong>${row.patient_name}</strong></td>
+                    <td>${row.doctor_name}</td>
+                    <td><span class="status-badge ${statusClass}">${row.status}</span></td>
+                    <td><span class="amount">₱${row.amount.toLocaleString()}</span></td>
+                    <td><span class="status-badge ${paymentClass}">${paymentText}</span></td>
+                    <td>${row.reason}</td>
+                </tr>
+            `;
+        }).join('');
     }
 
     function exportToPDF() {
-        if (!currentReportData || currentReportData.length === 0) {
-            alert('No data to export. Please generate a report first.');
-            return;
-        }
-        
+        if (!currentReportData.length) { alert('No data to export'); return; }
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape');
-        
-        // Header
-        doc.setFillColor(15, 43, 61);
-        doc.rect(0, 0, 297, 45, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(20);
-        doc.text('Wellmeadows Hospital - Appointment Report', 20, 28);
-        
-        // Report info
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(10);
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        doc.text(`Period: ${startDate} to ${endDate}`, 20, 55);
+        doc.setFillColor(15, 43, 61); doc.rect(0, 0, 297, 45, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFontSize(18);
+        doc.text('Wellmeadows Hospital - Financial Report', 20, 28);
+        doc.setTextColor(0, 0, 0); doc.setFontSize(10);
+        doc.text(`Period: ${document.getElementById('startDate').value} to ${document.getElementById('endDate').value}`, 20, 55);
         doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 63);
+        
+        const paid = currentReportData.filter(r => r.payment === 'paid').reduce((s, r) => s + r.amount, 0);
+        const pending = currentReportData.filter(r => r.payment === 'pending').reduce((s, r) => s + r.amount, 0);
         doc.text(`Total Appointments: ${currentReportData.length}`, 20, 71);
-        doc.text(`Total Revenue: ₱${(currentReportData.length * 800).toLocaleString()}`, 20, 79);
+        doc.text(`Paid Revenue: ₱${paid.toLocaleString()}`, 20, 79);
+        doc.text(`Pending Revenue: ₱${pending.toLocaleString()}`, 20, 87);
         
-        // Table data
-        const tableData = currentReportData.map(row => [
-            row.date,
-            row.patient_name,
-            row.doctor_name,
-            row.status,
-            row.reason
-        ]);
-        
-        doc.autoTable({
-            startY: 90,
-            head: [['Date', 'Patient', 'Doctor', 'Status', 'Reason']],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [40, 123, 158], textColor: [255, 255, 255] },
-            alternateRowStyles: { fillColor: [248, 250, 252] }
-        });
-        
-        doc.save(`appointments_report_${new Date().toISOString().split('T')[0]}.pdf`);
+        const tableData = currentReportData.map(r => [r.date, r.patient_name, r.doctor_name, r.status, `₱${r.amount.toLocaleString()}`, r.payment, r.reason]);
+        doc.autoTable({ startY: 95, head: [['Date', 'Patient', 'Doctor', 'Status', 'Amount', 'Payment', 'Service']], body: tableData, theme: 'striped', headStyles: { fillColor: [40, 123, 158] } });
+        doc.save(`financial_report_${new Date().toISOString().split('T')[0]}.pdf`);
     }
 
     function exportToExcel() {
-        if (!currentReportData || currentReportData.length === 0) {
-            alert('No data to export. Please generate a report first.');
-            return;
-        }
-        
-        // Prepare worksheet data
+        if (!currentReportData.length) { alert('No data to export'); return; }
         const wsData = [
-            ['Wellmeadows Hospital - Appointment Report'],
+            ['Wellmeadows Hospital - Financial Report'],
             [`Period: ${document.getElementById('startDate').value} to ${document.getElementById('endDate').value}`],
-            [`Generated: ${new Date().toLocaleString()}`],
-            [],
-            ['Date', 'Patient Name', 'Doctor Name', 'Status', 'Reason']
+            [`Generated: ${new Date().toLocaleString()}`], [],
+            ['SUMMARY'], ['Total Appointments', currentReportData.length],
+            ['Paid Revenue', `₱${currentReportData.filter(r => r.payment === 'paid').reduce((s, r) => s + r.amount, 0).toLocaleString()}`],
+            ['Pending Revenue', `₱${currentReportData.filter(r => r.payment === 'pending').reduce((s, r) => s + r.amount, 0).toLocaleString()}`], [],
+            ['DETAILED REPORT'],
+            ['Date', 'Patient', 'Doctor', 'Status', 'Amount', 'Payment', 'Service']
         ];
-        
-        currentReportData.forEach(row => {
-            wsData.push([
-                row.date,
-                row.patient_name,
-                row.doctor_name,
-                row.status,
-                row.reason
-            ]);
-        });
-        
-        // Add summary row
-        wsData.push([]);
-        wsData.push(['Summary', '', '', '', '']);
-        wsData.push(['Total Appointments', currentReportData.length, '', '', '']);
-        wsData.push(['Total Revenue', `₱${(currentReportData.length * 800).toLocaleString()}`, '', '', '']);
-        
+        currentReportData.forEach(r => { wsData.push([r.date, r.patient_name, r.doctor_name, r.status, r.amount, r.payment, r.reason]); });
         const ws = XLSX.utils.aoa_to_sheet(wsData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Appointment Report');
-        XLSX.writeFile(wb, `appointments_report_${new Date().toISOString().split('T')[0]}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, 'Financial Report');
+        XLSX.writeFile(wb, `financial_report_${new Date().toISOString().split('T')[0]}.xlsx`);
     }
 
     // Sidebar toggle
@@ -638,30 +570,20 @@
         mainContent.classList.toggle('expanded');
     });
 
-    // Logout
     document.getElementById('logoutBtn').addEventListener('click', async () => {
         await supabaseClient.auth.signOut();
         window.location.href = 'login.html';
     });
 
-    // Auth check
     async function checkAuth() {
         const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session) {
-            window.location.href = 'login.html';
-            return;
-        }
-        const { data: staff } = await supabaseClient
-            .from('staff')
-            .select('first_name, last_name')
-            .eq('email', session.user.email)
-            .single();
-        if (staff) {
-            document.getElementById('adminName').textContent = `${staff.first_name} ${staff.last_name}`;
+        if (!session) window.location.href = 'login.html';
+        else {
+            const { data: staff } = await supabaseClient.from('staff').select('first_name, last_name').eq('email', session.user.email).single();
+            if (staff) document.getElementById('adminName').textContent = `${staff.first_name} ${staff.last_name}`;
         }
     }
 
-    // Initialize
     checkAuth();
     setDefaultDates();
     loadReport();

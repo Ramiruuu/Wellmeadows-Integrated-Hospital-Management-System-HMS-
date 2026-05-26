@@ -313,7 +313,6 @@
             grid-column: span 7;
         }
 
-        /* Responsive */
         @media (max-width: 1000px) {
             .schedule-grid {
                 grid-template-columns: repeat(4, 1fr);
@@ -429,35 +428,41 @@
     let doctors = [];
     let currentDoctorId = null;
 
-    // Format date to readable format
     function formatDate(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
-    // Get day name
     function getDayName(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleDateString('en-US', { weekday: 'short' });
     }
 
-    // Load doctors into dropdown
+    // Load doctors into dropdown - FIXED: Get ALL staff with medical roles
     async function loadDoctors() {
+        // Get all staff members who are doctors (including updated roles)
         const { data } = await supabaseClient
             .from('staff')
             .select('*')
-            .in('position', ['Doctor', 'Senior Doctor', 'Consultant', 'Surgeon']);
+            .or('position.ilike.%Doctor%,position.ilike.%Cardiologist%,position.ilike.%Pediatrician%,position.ilike.%Surgeon%,position.ilike.%Consultant%');
         
         doctors = data || [];
+        console.log('Doctors loaded:', doctors.length);
+        
         const select = document.getElementById('doctorSelect');
         select.innerHTML = '<option value="">-- Select Doctor --</option>';
         
         doctors.forEach(doc => {
-            select.innerHTML += `<option value="${doc.staff_id}">Dr. ${doc.first_name} ${doc.last_name} (${doc.position})</option>`;
+            // Get the specialty or position to display
+            const specialty = doc.specialty ? ` - ${doc.specialty.substring(0, 30)}` : '';
+            select.innerHTML += `<option value="${doc.staff_id}">Dr. ${doc.first_name} ${doc.last_name} (${doc.position})${specialty}</option>`;
         });
+        
+        if (doctors.length === 0) {
+            select.innerHTML = '<option value="">-- No doctors found --</option>';
+        }
     }
 
-    // Load weekly schedule for selected doctor
     async function loadWeeklySchedule(doctorId) {
         if (!doctorId) {
             document.getElementById('weeklySchedule').innerHTML = '<div class="empty-state">Select a doctor to view schedule</div>';
@@ -466,9 +471,9 @@
         }
 
         const doctor = doctors.find(d => d.staff_id === doctorId);
-        document.getElementById('currentDoctorInfo').innerHTML = `Showing schedule for: <span>Dr. ${doctor.first_name} ${doctor.last_name}</span>`;
+        const specialtyText = doctor.specialty ? `<br><small style="color:#64748b">${doctor.specialty}</small>` : '';
+        document.getElementById('currentDoctorInfo').innerHTML = `Showing schedule for: <span>Dr. ${doctor.first_name} ${doctor.last_name} (${doctor.position})</span>${specialtyText}`;
 
-        // Get next 7 days
         const days = [];
         for (let i = 0; i < 7; i++) {
             const date = new Date();
@@ -476,7 +481,6 @@
             days.push(date.toISOString().split('T')[0]);
         }
 
-        // Fetch existing schedules
         const { data: schedules } = await supabaseClient
             .from('staff_schedule')
             .select('*')
@@ -488,13 +492,12 @@
             scheduleMap[s.shift_date] = s.shift_type;
         });
 
-        // Render schedule grid
         const container = document.getElementById('weeklySchedule');
         container.innerHTML = days.map(date => {
             const status = scheduleMap[date];
-            let statusClass = '';
-            let statusText = '';
             let cardClass = '';
+            let statusText = '';
+            let statusClass = '';
 
             if (status === 'available') {
                 cardClass = 'available';
@@ -519,7 +522,6 @@
         }).join('');
     }
 
-    // Save availability
     async function setAvailability() {
         const doctorId = document.getElementById('doctorSelect').value;
         const date = document.getElementById('scheduleDate').value;
@@ -534,7 +536,6 @@
             return;
         }
 
-        // Check if schedule already exists for this doctor and date
         const { data: existing } = await supabaseClient
             .from('staff_schedule')
             .select('*')
@@ -544,7 +545,6 @@
 
         let result;
         if (existing) {
-            // Update existing
             result = await supabaseClient
                 .from('staff_schedule')
                 .update({ 
@@ -553,7 +553,6 @@
                 })
                 .eq('schedule_id', existing.schedule_id);
         } else {
-            // Insert new
             result = await supabaseClient
                 .from('staff_schedule')
                 .insert([{
@@ -570,12 +569,10 @@
         } else {
             alert('Schedule saved successfully!');
             document.getElementById('scheduleDate').value = '';
-            // Refresh the schedule display
             loadWeeklySchedule(parseInt(doctorId));
         }
     }
 
-    // Event Listeners
     document.getElementById('doctorSelect').addEventListener('change', (e) => {
         const doctorId = e.target.value;
         currentDoctorId = doctorId;
@@ -588,7 +585,6 @@
 
     document.getElementById('saveScheduleBtn').addEventListener('click', setAvailability);
 
-    // Sidebar toggle
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
     document.getElementById('toggleSidebar').addEventListener('click', () => {
@@ -596,13 +592,11 @@
         mainContent.classList.toggle('expanded');
     });
 
-    // Logout
     document.getElementById('logoutBtn').addEventListener('click', async () => {
         await supabaseClient.auth.signOut();
         window.location.href = 'login.html';
     });
 
-    // Auth check
     async function checkAuth() {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) {
@@ -619,7 +613,6 @@
         }
     }
 
-    // Initialize
     checkAuth();
     loadDoctors();
 </script>
