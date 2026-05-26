@@ -5,10 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Doctors - Wellmeadows</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 
+        /* Sidebar - Same as Dashboard */
         .sidebar {
             position: fixed; top: 0; left: 0; height: 100%; width: 280px;
             background: linear-gradient(180deg, #0f2b3d 0%, #0a1e2c 100%);
@@ -17,55 +20,189 @@
         .sidebar.closed { width: 80px; }
         .sidebar.closed .sidebar-nav span, .sidebar.closed .logo-text, 
         .sidebar.closed .logo-sub, .sidebar.closed .user-details { display: none; }
+        .sidebar.closed .sidebar-nav .nav-item { justify-content: center; padding: 12px; }
+        
         .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
         .logo-area { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { font-size: 1.5rem; font-weight: 700; color: #4db8ff; }
+        .logo-icon { font-size: 2rem; color: #4db8ff; }
         .logo-text { font-size: 1.3rem; font-weight: 700; color: white; }
         .logo-sub { font-size: 0.7rem; color: #94a3b8; margin-top: 6px; padding-left: 52px; }
+        
         .toggle-btn {
             position: absolute; top: 20px; right: -12px; background: #287b9e;
             border: 2px solid #0f2b3d; border-radius: 50%; width: 28px; height: 28px;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
             color: white; z-index: 101;
         }
+        
         .sidebar-nav { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
         .nav-item {
             display: flex; align-items: center; gap: 14px; padding: 12px 16px;
             border-radius: 12px; color: #cbd5e6; text-decoration: none;
             font-weight: 500; font-size: 0.9rem; transition: all 0.2s;
         }
+        .nav-item i { width: 24px; font-size: 1.1rem; }
         .nav-item:hover { background: rgba(77,184,255,0.12); color: white; }
         .nav-item.active { background: #287b9e; color: white; }
+        
         .sidebar-footer {
             position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
             border-top: 1px solid rgba(255,255,255,0.08);
         }
         .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .user-avatar { width: 40px; height: 40px; background: #287b9e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .user-avatar { width: 40px; height: 40px; background: #287b9e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .user-name { font-weight: 600; font-size: 0.85rem; color: white; }
         .logout-btn {
             width: 100%; background: rgba(220,38,38,0.2); border: none; color: #fca5a5;
-            padding: 10px; border-radius: 10px; cursor: pointer;
+            padding: 10px; border-radius: 10px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; gap: 8px;
         }
         .logout-btn:hover { background: rgba(220,38,38,0.4); color: white; }
 
+        /* Main Content */
         .main-content { margin-left: 280px; padding: 24px 32px; transition: all 0.3s; min-height: 100vh; }
         .main-content.expanded { margin-left: 80px; }
         .top-header { margin-bottom: 32px; }
         .top-header h1 { font-size: 1.8rem; font-weight: 700; color: #0f2b3d; margin-bottom: 8px; }
+        .top-header p { color: #64748b; }
 
-        .doctors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
-        .doctor-card {
-            background: white; border-radius: 20px; padding: 24px; border: 1px solid #e2e8f0;
-            transition: all 0.2s; text-align: center;
+        /* Doctors Grid */
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 28px;
         }
-        .doctor-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); border-color: #287b9e; }
-        .doctor-avatar { width: 80px; height: 80px; background: #eef2ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 2rem; }
-        .doctor-name { font-size: 1.1rem; font-weight: 700; color: #0f2b3d; margin-bottom: 4px; }
-        .doctor-specialty { color: #287b9e; font-size: 0.85rem; margin-bottom: 12px; }
-        .doctor-desc { color: #64748b; font-size: 0.8rem; margin-bottom: 16px; }
-        .btn-book { background: #287b9e; color: white; border: none; padding: 8px 20px; border-radius: 40px; font-weight: 600; cursor: pointer; }
-        .btn-book:hover { background: #1a5f7a; }
+        
+        .doctor-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9eef3;
+        }
+        
+        .doctor-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.15);
+            border-color: #287b9e;
+        }
+        
+        .doctor-image {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #0f2b3d 0%, #1a4a6e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .doctor-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .doctor-image .placeholder {
+            font-size: 5rem;
+            color: #4db8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .doctor-image .placeholder i {
+            font-size: 4rem;
+        }
+        
+        .doctor-info {
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .doctor-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f2b3d;
+            margin-bottom: 6px;
+        }
+        
+        .doctor-specialty {
+            display: inline-block;
+            background: #eef2ff;
+            color: #287b9e;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .doctor-details {
+            margin: 16px 0;
+            text-align: left;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 16px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.8rem;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #475569;
+        }
+        
+        .detail-value {
+            color: #1e293b;
+        }
+        
+        .doctor-bio {
+            font-size: 0.8rem;
+            color: #64748b;
+            line-height: 1.5;
+            margin: 16px 0;
+            text-align: left;
+        }
+        
+        .btn-book {
+            width: 100%;
+            background: #287b9e;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        
+        .btn-book:hover {
+            background: #1a5f7a;
+            transform: translateY(-2px);
+        }
+        
+        .rating {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin: 12px 0;
+            color: #fbbf24;
+        }
 
         @media (max-width: 768px) {
             .sidebar { width: 80px; }
@@ -80,69 +217,201 @@
 <body>
 
 <aside class="sidebar" id="sidebar">
-    <div class="toggle-btn" id="toggleSidebar">〈</div>
+    <div class="toggle-btn" id="toggleSidebar"><i class="fas fa-chevron-left"></i></div>
     <div class="sidebar-header">
-        <div class="logo-area"><div class="logo-icon">🏥</div><div class="logo-text">Wellmeadows</div></div>
+        <div class="logo-area"><i class="fas fa-hospital-user logo-icon"></i><div class="logo-text">Wellmeadows</div></div>
         <div class="logo-sub">Patient Portal</div>
     </div>
     <nav class="sidebar-nav">
-        <a href="index.html" class="nav-item"><span>Dashboard</span></a>
-        <a href="book-appointment.html" class="nav-item"><span>Book Appointment</span></a>
-        <a href="my-appointments.html" class="nav-item"><span>My Appointments</span></a>
-        <a href="doctors.html" class="nav-item active"><span>Our Doctors</span></a>
-        <a href="medical-records.html" class="nav-item"><span>Medical Records</span></a>
-        <a href="payment.html" class="nav-item"><span>Payments</span></a>
-    </nav>
+        <a href="index.html" class="nav-item"><i class="fas fa-chalkboard-user"></i><span>Dashboard</span></a>
+        <a href="book-appointment.html" class="nav-item"><i class="fas fa-calendar-plus"></i><span>Book Appointment</span></a>
+        <a href="my-appointments.html" class="nav-item"><i class="fas fa-calendar-check"></i><span>My Appointments</span></a>
+        <a href="doctors.html" class="nav-item active"><i class="fas fa-user-md"></i><span>Our Doctors</span></a>
+        <a href="medical-records.html" class="nav-item"><i class="fas fa-notes-medical"></i><span>Medical Records</span></a>
     <div class="sidebar-footer">
-        <div class="user-info"><div class="user-avatar">👤</div><div class="user-details"><div class="user-name" id="userName">Patient</div></div></div>
-        <button class="logout-btn" id="logoutBtn">Logout</button>
+        <div class="user-info"><div class="user-avatar"><i class="fas fa-user-circle"></i></div><div class="user-details"><div class="user-name" id="userName">Patient</div></div></div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
 </aside>
 
 <main class="main-content" id="mainContent">
-    <div class="top-header"><h1>Our Medical Team</h1><p>Meet our experienced doctors and specialists</p></div>
+    <div class="top-header">
+        <h1>Our Medical Team</h1>
+        <p>Meet our experienced doctors and specialists committed to your care</p>
+    </div>
     <div class="doctors-grid" id="doctorsList"></div>
 </main>
 
 <script type="module">
     import { auth, onAuthStateChanged, signOut } from './assets/js/firebase-config.js';
 
+    // Supabase client
+    const SUPABASE_URL = 'https://cqetejeaeasqkafdgjri.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_75JVFc0QWySSyAPQVO-C1g_Udqt9tgQ';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+
+    // Doctor data with image URLs
+    // Replace these with actual image URLs from your Supabase Storage or external hosting
     const doctors = [
-        { name: 'Dr. Kian Gape', specialty: 'General Medicine', experience: '12 years', education: 'University of Santo Tomas' },
-        { name: 'Dr. Allyza Espragera', specialty: 'Cardiology', experience: '15 years', education: 'University of the Philippines' },
-        { name: 'Dr. Mary Nyl Toreta', specialty: 'Pediatrics', experience: '10 years', education: 'Ateneo de Manila University' },
-        { name: 'Dr. Juhaiber Macadato', specialty: 'General Surgery', experience: '18 years', education: 'University of Santo Tomas' },
-        { name: 'Dr. Jennifer Barnedo', specialty: 'Internal Medicine', experience: '20 years', education: 'University of the Philippines' }
+        { 
+            id: 1,
+            name: 'Dr. Kian Gape', 
+            specialty: 'General Medicine', 
+            experience: '12 years', 
+            education: 'University of Santo Tomas',
+            bio: 'Specializes in family medicine and general practice. Committed to providing comprehensive healthcare for patients of all ages.',
+            rating: 4.8,
+            imageUrl: null  // Add your image URL here
+        },
+        { 
+            id: 2,
+            name: 'Dr. Allyza Espragera', 
+            specialty: 'Cardiology', 
+            experience: '15 years', 
+            education: 'University of the Philippines',
+            bio: 'Expert in diagnosing and treating heart conditions. Provides personalized cardiac care and preventive cardiology.',
+            rating: 4.9,
+            imageUrl: null
+        },
+        { 
+            id: 3,
+            name: 'Dr. Mary Nyl Toreta', 
+            specialty: 'Pediatrics', 
+            experience: '10 years', 
+            education: 'Ateneo de Manila University',
+            bio: 'Dedicated to children\'s health and wellness. Offers comprehensive pediatric care from newborns to adolescents.',
+            rating: 4.7,
+            imageUrl: null
+        },
+        { 
+            id: 4,
+            name: 'Dr. Juhaiber Macadato', 
+            specialty: 'General Surgery', 
+            experience: '18 years', 
+            education: 'University of Santo Tomas',
+            bio: 'Skilled surgeon specializing in general and laparoscopic procedures. Focuses on patient safety and recovery.',
+            rating: 4.9,
+            imageUrl: null
+        },
+        { 
+            id: 5,
+            name: 'Dr. Jennifer Barnedo', 
+            specialty: 'Internal Medicine', 
+            experience: '20 years', 
+            education: 'University of the Philippines',
+            bio: 'Specializes in adult medicine, diabetes management, and chronic disease prevention.',
+            rating: 4.8,
+            imageUrl: null
+        }
     ];
+
+    // Load patient name for sidebar
+    async function loadPatientName() {
+        if (!currentUser) return;
+        
+        try {
+            const { data, error } = await supabaseClient
+                .from('patient')
+                .select('first_name, last_name')
+                .eq('email', currentUser.email)
+                .maybeSingle();
+            
+            if (data) {
+                const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim();
+                document.getElementById('userName').innerHTML = fullName || 'Patient';
+            } else if (currentUser.displayName) {
+                document.getElementById('userName').innerHTML = currentUser.displayName;
+            } else {
+                document.getElementById('userName').innerHTML = currentUser.email.split('@')[0];
+            }
+        } catch (error) {
+            console.error('Error loading patient name:', error);
+        }
+    }
 
     function renderDoctors() {
         const container = document.getElementById('doctorsList');
-        container.innerHTML = doctors.map(doc => `
-            <div class="doctor-card">
-                <div class="doctor-avatar">👨‍⚕️</div>
-                <div class="doctor-name">${doc.name}</div>
-                <div class="doctor-specialty">${doc.specialty}</div>
-                <div class="doctor-desc">${doc.experience} experience<br>${doc.education}</div>
-                <button class="btn-book" onclick="bookDoctor('${doc.name}', '${doc.specialty}')">Book Appointment</button>
-            </div>
-        `).join('');
+        
+        container.innerHTML = doctors.map(doc => {
+            // Generate star rating
+            const fullStars = Math.floor(doc.rating);
+            const halfStar = doc.rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+            
+            const stars = [];
+            for (let i = 0; i < fullStars; i++) stars.push('<i class="fas fa-star"></i>');
+            if (halfStar) stars.push('<i class="fas fa-star-half-alt"></i>');
+            for (let i = 0; i < emptyStars; i++) stars.push('<i class="far fa-star"></i>');
+            
+            // Use image if provided, otherwise show placeholder
+            const imageHtml = doc.imageUrl 
+                ? `<img src="${doc.imageUrl}" alt="${doc.name}">`
+                : `<div class="placeholder"><i class="fas fa-user-md"></i></div>`;
+            
+            return `
+                <div class="doctor-card">
+                    <div class="doctor-image">
+                        ${imageHtml}
+                    </div>
+                    <div class="doctor-info">
+                        <div class="doctor-name">${doc.name}</div>
+                        <div class="doctor-specialty">${doc.specialty}</div>
+                        <div class="rating">${stars.join('')} <span style="color:#64748b; margin-left:8px;">${doc.rating}</span></div>
+                        <div class="doctor-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Experience</span>
+                                <span class="detail-value">${doc.experience}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Education</span>
+                                <span class="detail-value">${doc.education}</span>
+                            </div>
+                        </div>
+                        <div class="doctor-bio">${doc.bio}</div>
+                        <button class="btn-book" onclick="bookDoctor(${doc.id})">
+                            Book Appointment
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
-    window.bookDoctor = (name, specialty) => {
-        window.location.href = `book-appointment.html?doctor=${encodeURIComponent(name)}&specialty=${encodeURIComponent(specialty)}`;
+    // Book doctor - pass doctor ID to appointment page
+    window.bookDoctor = (doctorId) => {
+        window.location.href = `book-appointment.html?doctor_id=${doctorId}`;
     };
 
+    // Sidebar toggle
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
-    document.getElementById('toggleSidebar').addEventListener('click', () => {
-        sidebar.classList.toggle('closed');
-        mainContent.classList.toggle('expanded');
-    });
+    const toggleBtn = document.getElementById('toggleSidebar');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('closed');
+            mainContent.classList.toggle('expanded');
+        });
+    }
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = 'login.html'; });
+    // Logout
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+    }
 
-    onAuthStateChanged(auth, (user) => {
-        if (!user) { window.location.href = 'login.html'; return; }
+    // Auth check
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        currentUser = user;
+        await loadPatientName();
         renderDoctors();
     });
 </script>

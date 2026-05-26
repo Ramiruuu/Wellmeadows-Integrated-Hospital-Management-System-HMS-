@@ -6,8 +6,9 @@
     <title>Book Appointment - Wellmeadows</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
-        /* Same sidebar/base styles as index.html */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 
@@ -48,45 +49,86 @@
         .user-name { font-weight: 600; font-size: 0.85rem; color: white; }
         .logout-btn {
             width: 100%; background: rgba(220,38,38,0.2); border: none; color: #fca5a5;
-            padding: 10px; border-radius: 10px; cursor: pointer; display: flex;
-            align-items: center; justify-content: center; gap: 8px;
+            padding: 10px; border-radius: 10px; cursor: pointer;
         }
         .logout-btn:hover { background: rgba(220,38,38,0.4); color: white; }
 
         .main-content { margin-left: 280px; padding: 24px 32px; transition: all 0.3s; min-height: 100vh; }
         .main-content.expanded { margin-left: 80px; }
         .top-header { margin-bottom: 32px; }
-        .top-header h1 { font-size: 1.8rem; font-weight: 700; color: #0f2b3d; margin-bottom: 8px; }
+        .top-header h1 { font-size: 1.8rem; font-weight: 700; color: #0f2b3d; }
 
-        .card { background: white; border-radius: 20px; padding: 32px; border: 1px solid #e2e8f0; max-width: 700px; margin: 0 auto; }
+        .card { background: white; border-radius: 20px; padding: 32px; border: 1px solid #e2e8f0; max-width: 800px; margin: 0 auto; }
         .card h2 { font-size: 1.3rem; margin-bottom: 8px; color: #0f2b3d; }
         .card p { color: #64748b; margin-bottom: 24px; }
+
         .form-group { margin-bottom: 24px; }
         label { display: block; font-weight: 600; font-size: 0.75rem; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         select, input, textarea {
             width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px;
             font-size: 0.9rem; font-family: 'Inter', sans-serif;
+            background: white;
         }
         select:focus, input:focus, textarea:focus { outline: none; border-color: #287b9e; }
-        .doctor-option {
-            padding: 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px;
-            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px;
+
+        .review-section {
+            background: #f8fafc; border-radius: 16px; padding: 20px;
+            margin: 20px 0; border: 1px solid #e2e8f0;
         }
-        .doctor-option:hover { border-color: #287b9e; background: #f8fafc; }
-        .doctor-option.selected { border-color: #287b9e; background: #eef2ff; }
-        .doctor-avatar { width: 40px; height: 40px; background: #eef2ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .doctor-info { flex: 1; }
-        .doctor-name { font-weight: 600; margin-bottom: 4px; }
-        .doctor-specialty { font-size: 0.8rem; color: #64748b; }
-        .btn-primary {
-            width: 100%; background: #287b9e; color: white; border: none; padding: 14px;
-            border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 0.9rem;
+        .review-row {
+            display: flex; justify-content: space-between;
+            padding: 12px 0; border-bottom: 1px solid #e2e8f0;
         }
+        .review-row:last-child { border-bottom: none; }
+        .review-label { font-weight: 600; color: #475569; }
+        .review-value { color: #1e293b; font-weight: 500; }
+
+        .payment-options {
+            display: flex; gap: 16px; margin: 20px 0;
+        }
+        .payment-option {
+            flex: 1; padding: 16px; border: 2px solid #e2e8f0;
+            border-radius: 12px; text-align: center; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .payment-option:hover { border-color: #287b9e; background: #f8fafc; }
+        .payment-option.selected { border-color: #287b9e; background: #eef2ff; }
+        .payment-option strong { display: block; margin-bottom: 4px; }
+        .payment-option small { font-size: 0.7rem; color: #64748b; }
+
+        .payment-details {
+            background: #f8fafc; border-radius: 12px; padding: 20px;
+            margin: 20px 0; display: none;
+        }
+        .payment-details.active { display: block; }
+
+        .btn-primary, .btn-secondary, .btn-payment {
+            width: 100%; padding: 14px; border-radius: 40px; font-weight: 600;
+            cursor: pointer; font-size: 0.9rem; border: none; margin-top: 12px;
+        }
+        .btn-primary { background: #287b9e; color: white; }
         .btn-primary:hover { background: #1a5f7a; }
-        .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+        .btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .btn-secondary:hover { background: #e2e8f0; }
+        .btn-payment { background: #059669; color: white; }
+        .btn-payment:hover { background: #047857; }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: white; border-radius: 24px; max-width: 400px; width: 90%; padding: 32px;
+            text-align: center;
+        }
+        .success-icon { font-size: 4rem; color: #059669; margin-bottom: 16px; }
+
         .message { padding: 12px; border-radius: 12px; margin-bottom: 20px; display: none; }
         .message.success { background: #dcfce7; color: #15803d; display: block; }
         .message.error { background: #fee2e2; color: #b91c1c; display: block; }
+        .message.info { background: #dbeafe; color: #1e40af; display: block; }
+
+        .scrollable-content { max-height: 500px; overflow-y: auto; padding-right: 10px; }
 
         @media (max-width: 768px) {
             .sidebar { width: 80px; }
@@ -94,6 +136,7 @@
             .sidebar .nav-item { justify-content: center; padding: 12px; }
             .sidebar .nav-item span { display: none; }
             .main-content { margin-left: 80px; padding: 20px; }
+            .payment-options { flex-direction: column; }
             .card { padding: 24px; }
         }
     </style>
@@ -112,7 +155,6 @@
         <a href="my-appointments.html" class="nav-item"><i class="fas fa-calendar-check"></i><span>My Appointments</span></a>
         <a href="doctors.html" class="nav-item"><i class="fas fa-user-md"></i><span>Our Doctors</span></a>
         <a href="medical-records.html" class="nav-item"><i class="fas fa-notes-medical"></i><span>Medical Records</span></a>
-        <a href="payment.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Payments</span></a>
     </nav>
     <div class="sidebar-footer">
         <div class="user-info"><div class="user-avatar"><i class="fas fa-user-circle"></i></div><div class="user-details"><div class="user-name" id="userName">Patient</div></div></div>
@@ -122,99 +164,418 @@
 
 <main class="main-content" id="mainContent">
     <div class="top-header"><h1>Book an Appointment</h1></div>
+    
     <div class="card">
-        <h2>Schedule Your Visit</h2>
-        <p>Select a doctor, choose a date, and confirm your appointment.</p>
         <div id="message" class="message"></div>
-        <form id="appointmentForm">
-            <div class="form-group"><label>Select Doctor</label><div id="doctorsList"></div><input type="hidden" id="selectedDoctorId"></div>
-            <div class="form-group"><label>Appointment Date</label><input type="date" id="appointmentDate" required></div>
-            <div class="form-group"><label>Appointment Time</label>
-                <select id="appointmentTime" required>
-                    <option value="">Select time</option>
-                    <option value="09:00">9:00 AM</option><option value="10:00">10:00 AM</option>
-                    <option value="11:00">11:00 AM</option><option value="13:00">1:00 PM</option>
-                    <option value="14:00">2:00 PM</option><option value="15:00">3:00 PM</option>
+
+        <!-- Step 1: Booking Form -->
+        <div id="bookingForm">
+            <h2>Schedule Your Visit</h2>
+            <p>Select a doctor, choose a date, and confirm your appointment.</p>
+            
+            <div class="form-group">
+                <label>Select Doctor</label>
+                <select id="doctorSelect" required>
+                    <option value="">-- Loading doctors... --</option>
                 </select>
             </div>
-            <div class="form-group"><label>Reason for Visit</label><textarea id="reason" rows="3" placeholder="Describe your symptoms or reason for consultation"></textarea></div>
-            <button type="submit" class="btn-primary">Confirm Appointment</button>
-        </form>
+            
+            <div class="form-group">
+                <label>Select Service</label>
+                <select id="serviceSelect" required>
+                    <option value="">-- Select a service --</option>
+                    <option value="General Consultation" data-price="500">General Consultation - ₱500</option>
+                    <option value="Specialist Consultation" data-price="1200">Specialist Consultation - ₱1,200</option>
+                    <option value="Executive Checkup" data-price="2500">Executive Checkup - ₱2,500</option>
+                    <option value="Teleconsultation" data-price="400">Teleconsultation - ₱400</option>
+                    <option value="Follow-up Consultation" data-price="400">Follow-up Consultation - ₱400</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Appointment Date</label>
+                <input type="date" id="appointmentDate" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Appointment Time</label>
+                <select id="appointmentTime" required>
+                    <option value="">Select time</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Reason for Visit</label>
+                <textarea id="reason" rows="3" placeholder="Describe your symptoms or reason for consultation"></textarea>
+            </div>
+            
+            <button class="btn-primary" id="reviewBtn">Review Appointment →</button>
+        </div>
+
+        <!-- Step 2: Review & Payment -->
+        <div id="reviewSection" style="display: none;">
+            <h2>Review Your Appointment</h2>
+            <p>Please review the details below before proceeding to payment.</p>
+            
+            <div class="review-section" id="reviewDetails"></div>
+            
+            <h3>Select Payment Method</h3>
+            <div class="payment-options">
+                <div class="payment-option" data-payment="cash">
+                    <strong>Cash</strong>
+                    <small>Pay at the hospital</small>
+                </div>
+                <div class="payment-option" data-payment="online">
+                    <strong>Pay Online</strong>
+                    <small>GCash / PayPal</small>
+                </div>
+            </div>
+            
+            <div id="onlinePaymentDetails" class="payment-details">
+                <div class="form-group">
+                    <label>Select Payment Method</label>
+                    <select id="onlinePaymentMethod">
+                        <option value="GCash">GCash</option>
+                        <option value="PayPal">PayPal</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Account Email / Number</label>
+                    <input type="text" id="paymentAccount" placeholder="Enter your GCash number or PayPal email">
+                </div>
+                <div class="form-group">
+                    <label>Amount to Pay</label>
+                    <input type="text" id="paymentAmount" readonly style="background: #f1f5f9; font-weight: 600;">
+                </div>
+            </div>
+            <button class="btn-payment" id="confirmPaymentBtn">Confirm & Pay</button>
+            <button class="btn-secondary" id="backToFormBtn" style="margin-top: 12px;">← Back</button>
+        </div>
     </div>
 </main>
 
-<script type="module">
-    import { auth, db, onAuthStateChanged, signOut, collection, addDoc, query, where, getDocs, Timestamp } from './assets/js/firebase-config.js';
+<!-- Success Modal -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+        <h3>Appointment Confirmed!</h3>
+        <p id="successMessage">Your appointment has been booked successfully.</p>
+        <p style="margin: 16px 0; color: #64748b;">A confirmation email has been sent to your email address.</p>
+        <button class="btn-primary" id="closeModalBtn">View My Appointments</button>
+    </div>
+</div>
 
-    const doctors = [
-        { id: 1, name: 'Dr. Kian Gape', specialty: 'General Medicine' },
-        { id: 2, name: 'Dr. Allyza Espragera', specialty: 'Cardiology' },
-        { id: 3, name: 'Dr. Mary Nyl Toreta', specialty: 'Pediatrics' },
-        { id: 4, name: 'Dr. Juhaiber Macadato', specialty: 'Surgery' },
-        { id: 5, name: 'Dr. Jennifer Barnedo', specialty: 'Internal Medicine' }
-    ];
+<script type="module">
+    import { auth, onAuthStateChanged, signOut } from './assets/js/firebase-config.js';
+
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://cqetejeaeasqkafdgjri.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_75JVFc0QWySSyAPQVO-C1g_Udqt9tgQ';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Initialize EmailJS
+    emailjs.init('xzGdJuZn9hKKaQ5E6');
+    const EMAILJS_SERVICE_ID = 'service_sp97r8w';
+    const EMAILJS_TEMPLATE_ID = 'template_3j3ngfc';
 
     let currentUser = null;
     let patientId = null;
+    let doctorsList = [];
     let selectedDoctor = null;
+    let selectedService = null;
+    let selectedPayment = null;
 
-    function renderDoctors() {
-        const container = document.getElementById('doctorsList');
-        container.innerHTML = doctors.map(doc => `
-            <div class="doctor-option" data-id="${doc.id}">
-                <div class="doctor-avatar"><i class="fas fa-user-md"></i></div>
-                <div class="doctor-info">
-                    <div class="doctor-name">${doc.name}</div>
-                    <div class="doctor-specialty">${doc.specialty}</div>
-                </div>
-                <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
-            </div>
-        `).join('');
-        document.querySelectorAll('.doctor-option').forEach(opt => {
-            opt.addEventListener('click', () => {
-                document.querySelectorAll('.doctor-option').forEach(o => o.classList.remove('selected'));
-                opt.classList.add('selected');
-                selectedDoctor = doctors.find(d => d.id == opt.dataset.id);
-                document.getElementById('selectedDoctorId').value = selectedDoctor.id;
+    // Load doctors from STAFF table
+    async function loadDoctors() {
+        try {
+            const { data, error } = await supabaseClient
+                .from('staff')
+                .select('staff_id, first_name, last_name, position, specialty')
+                .or('position.ilike.%Doctor%,position.ilike.%Cardiologist%,position.ilike.%Pediatrician%,position.ilike.%Surgeon%,position.ilike.%Consultant%');
+            
+            if (error) throw error;
+            
+            doctorsList = data || [];
+            const select = document.getElementById('doctorSelect');
+            
+            if (doctorsList.length === 0) {
+                select.innerHTML = '<option value="">-- No doctors available --</option>';
+                return;
+            }
+            
+            select.innerHTML = '<option value="">-- Choose a doctor --</option>';
+            doctorsList.forEach(doc => {
+                const option = document.createElement('option');
+                option.value = doc.staff_id;
+                const specialty = doc.specialty ? ` - ${doc.specialty}` : '';
+                option.textContent = `Dr. ${doc.first_name} ${doc.last_name} (${doc.position})${specialty}`;
+                select.appendChild(option);
             });
+        } catch (error) {
+            console.error('Error loading doctors:', error);
+        }
+    }
+
+    // Get or create patient record using the logged-in user's email
+    async function getOrCreatePatient(user) {
+        try {
+            // First, try to find existing patient by email
+            let { data: existingPatient, error: findError } = await supabaseClient
+                .from('patient')
+                .select('patient_id, first_name, last_name, email')
+                .eq('email', user.email)
+                .maybeSingle();
+            
+            if (existingPatient) {
+                console.log('Existing patient found:', existingPatient);
+                return existingPatient.patient_id;
+            }
+            
+            // If not found, create new patient using Firebase user data
+            const nameParts = user.displayName ? user.displayName.split(' ') : [user.email.split('@')[0], 'Patient'];
+            const firstName = nameParts[0] || 'Patient';
+            const lastName = nameParts[1] || 'User';
+            
+            console.log('Creating new patient for:', user.email);
+            
+            const { data: newPatient, error: insertError } = await supabaseClient
+                .from('patient')
+                .insert([{
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: user.email,
+                    phone: user.phoneNumber || '',
+                    date_registered: new Date().toISOString().split('T')[0]
+                }])
+                .select();
+            
+            if (insertError) throw insertError;
+            
+            console.log('New patient created:', newPatient);
+            return newPatient[0].patient_id;
+        } catch (error) {
+            console.error('Error in getOrCreatePatient:', error);
+            return null;
+        }
+    }
+
+    // Send email confirmation to the logged-in user
+    async function sendEmailConfirmation(bookingData) {
+        try {
+            const templateParams = {
+                to_email: bookingData.patientEmail,
+                patient_name: bookingData.patientName,
+                doctor_name: bookingData.doctorName,
+                appointment_date: bookingData.appointmentDate,
+                appointment_time: bookingData.appointmentTime,
+                service_name: bookingData.serviceName,
+                service_fee: bookingData.serviceFee,
+                payment_method: bookingData.paymentMethod,
+                payment_account: bookingData.paymentAccount || 'Pay at hospital'
+            };
+            const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+            console.log('Email sent to:', bookingData.patientEmail);
+            return true;
+        } catch (error) {
+            console.error('Email error:', error);
+            return false;
+        }
+    }
+
+    // Update review section
+    function updateReview() {
+        const servicePrice = parseInt(document.getElementById('serviceSelect').options[document.getElementById('serviceSelect').selectedIndex]?.dataset.price || 0);
+        const serviceName = document.getElementById('serviceSelect').value;
+        
+        document.getElementById('reviewDetails').innerHTML = `
+            <div class="review-row">
+                <span class="review-label">Doctor</span>
+                <span class="review-value">${selectedDoctor ? `Dr. ${selectedDoctor.first_name} ${selectedDoctor.last_name}` : '-'}</span>
+            </div>
+            <div class="review-row">
+                <span class="review-label">Specialty</span>
+                <span class="review-value">${selectedDoctor?.specialty || selectedDoctor?.position || '-'}</span>
+            </div>
+            <div class="review-row">
+                <span class="review-label">Service</span>
+                <span class="review-value">${serviceName}</span>
+            </div>
+            <div class="review-row">
+                <span class="review-label">Service Fee</span>
+                <span class="review-value">₱${servicePrice.toLocaleString()}</span>
+            </div>
+            <div class="review-row">
+                <span class="review-label">Appointment Date</span>
+                <span class="review-value">${document.getElementById('appointmentDate').value}</span>
+            </div>
+            <div class="review-row">
+                <span class="review-label">Appointment Time</span>
+                <span class="review-value">${document.getElementById('appointmentTime').value}</span>
+            </div>
+            <div class="review-row">
+                <span class="review-label">Reason</span>
+                <span class="review-value">${document.getElementById('reason').value || 'General consultation'}</span>
+            </div>
+        `;
+        
+        document.getElementById('paymentAmount').value = `₱${servicePrice.toLocaleString()}`;
+        selectedService = { name: serviceName, price: servicePrice };
+    }
+
+    // Handle payment method selection
+    document.querySelectorAll('.payment-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            selectedPayment = opt.dataset.payment;
+            
+            const onlineDetails = document.getElementById('onlinePaymentDetails');
+            if (selectedPayment === 'online') {
+                onlineDetails.classList.add('active');
+            } else {
+                onlineDetails.classList.remove('active');
+            }
         });
-    }
+    });
 
-    async function getPatientId(user) {
-        const q = query(collection(db, 'patients'), where("email", "==", user.email));
-        const snapshot = await getDocs(q);
-        if (!snapshot.empty) return snapshot.docs[0].id;
-        const newRef = await addDoc(collection(db, 'patients'), { email: user.email, firstName: user.displayName?.split(' ')[0] || 'Patient', createdAt: new Date().toISOString() });
-        return newRef.id;
-    }
+    // Review button click
+    document.getElementById('reviewBtn').addEventListener('click', () => {
+        const doctorId = parseInt(document.getElementById('doctorSelect').value);
+        const serviceName = document.getElementById('serviceSelect').value;
+        const appointmentDate = document.getElementById('appointmentDate').value;
+        const appointmentTime = document.getElementById('appointmentTime').value;
+        const msgDiv = document.getElementById('message');
 
-    document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const doctorId = document.getElementById('selectedDoctorId').value;
+        if (!doctorId || !serviceName || !appointmentDate || !appointmentTime) {
+            msgDiv.className = 'message error';
+            msgDiv.innerHTML = 'Please fill all required fields';
+            msgDiv.style.display = 'block';
+            setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
+            return;
+        }
+
+        selectedDoctor = doctorsList.find(d => d.staff_id === doctorId);
+        updateReview();
+        
+        document.getElementById('bookingForm').style.display = 'none';
+        document.getElementById('reviewSection').style.display = 'block';
+        msgDiv.style.display = 'none';
+    });
+
+    // Back button
+    document.getElementById('backToFormBtn').addEventListener('click', () => {
+        document.getElementById('reviewSection').style.display = 'none';
+        document.getElementById('bookingForm').style.display = 'block';
+    });
+
+    // Confirm payment button
+    document.getElementById('confirmPaymentBtn').addEventListener('click', async () => {
+        const msgDiv = document.getElementById('message');
         const appointmentDate = document.getElementById('appointmentDate').value;
         const appointmentTime = document.getElementById('appointmentTime').value;
         const reason = document.getElementById('reason').value;
-        const msgDiv = document.getElementById('message');
+        const servicePrice = selectedService?.price || 0;
+        const serviceName = selectedService?.name || '';
 
-        if (!doctorId || !appointmentDate || !appointmentTime) {
-            msgDiv.className = 'message error'; msgDiv.innerHTML = 'Please select a doctor, date, and time'; return;
+        if (!selectedPayment) {
+            msgDiv.className = 'message error';
+            msgDiv.innerHTML = 'Please select a payment method';
+            msgDiv.style.display = 'block';
+            return;
         }
 
-        msgDiv.className = 'message'; msgDiv.innerHTML = 'Booking appointment...';
+        let paymentAccount = null;
+        if (selectedPayment === 'online') {
+            paymentAccount = document.getElementById('paymentAccount').value;
+            if (!paymentAccount) {
+                msgDiv.className = 'message error';
+                msgDiv.innerHTML = 'Please enter your GCash number or PayPal email';
+                msgDiv.style.display = 'block';
+                return;
+            }
+        }
+
+        msgDiv.className = 'message info';
+        msgDiv.innerHTML = 'Processing your appointment...';
+        msgDiv.style.display = 'block';
+
         try {
-            await addDoc(collection(db, 'appointments'), {
-                patientId: patientId, patientEmail: currentUser.email,
-                doctorId: selectedDoctor.id, doctorName: selectedDoctor.name, doctorSpecialty: selectedDoctor.specialty,
-                appointmentDate: appointmentDate, appointmentTime: appointmentTime, reason: reason || 'General consultation',
-                status: 'Scheduled', createdAt: Timestamp.now()
+            if (!currentUser) throw new Error('No user logged in');
+            
+            // Get or create patient record using the logged-in user's email
+            patientId = await getOrCreatePatient(currentUser);
+            if (!patientId) throw new Error('Could not create patient record');
+
+            // Insert appointment
+            const { data: appointment, error: insertError } = await supabaseClient
+                .from('appointment')
+                .insert([{
+                    patient_id: patientId,
+                    staff_id: selectedDoctor.staff_id,
+                    appointment_date: appointmentDate,
+                    appointment_time: appointmentTime,
+                    reason: reason || 'General consultation',
+                    status: 'Confirmed',
+                    service_fee: servicePrice,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }])
+                .select();
+            
+            if (insertError) throw insertError;
+
+            // Create bill
+            const billNumber = `INV-${Date.now()}-${appointment[0].appointment_id}`;
+            await supabaseClient
+                .from('bill')
+                .insert([{
+                    patient_id: patientId,
+                    appointment_id: appointment[0].appointment_id,
+                    bill_number: billNumber,
+                    total_amount: servicePrice,
+                    status: selectedPayment === 'online' ? 'paid' : 'pending',
+                    payment_method: selectedPayment === 'online' ? document.getElementById('onlinePaymentMethod').value : 'Cash',
+                    created_at: new Date().toISOString()
+                }]);
+
+            // Send email confirmation to the logged-in user
+            const patientName = currentUser.displayName || currentUser.email.split('@')[0];
+            const emailSent = await sendEmailConfirmation({
+                patientEmail: currentUser.email,
+                patientName: patientName,
+                doctorName: `Dr. ${selectedDoctor.first_name} ${selectedDoctor.last_name}`,
+                appointmentDate: appointmentDate,
+                appointmentTime: appointmentTime,
+                serviceName: serviceName,
+                serviceFee: servicePrice,
+                paymentMethod: selectedPayment === 'online' ? document.getElementById('onlinePaymentMethod').value : 'Cash',
+                paymentAccount: paymentAccount || 'Pay at hospital'
             });
-            msgDiv.className = 'message success'; msgDiv.innerHTML = 'Appointment booked successfully! Redirecting...';
-            setTimeout(() => window.location.href = 'my-appointments.html', 2000);
+
+            console.log(`Email confirmation ${emailSent ? 'sent' : 'failed'} to ${currentUser.email}`);
+
+            // Show success modal
+            document.getElementById('successModal').style.display = 'flex';
+            msgDiv.style.display = 'none';
+            
         } catch (error) {
-            msgDiv.className = 'message error'; msgDiv.innerHTML = 'Error: ' + error.message;
+            console.error('Error:', error);
+            msgDiv.className = 'message error';
+            msgDiv.innerHTML = 'Error: ' + error.message;
         }
     });
 
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+        window.location.href = 'my-appointments.html';
+    });
+
+    // Sidebar toggle
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
     document.getElementById('toggleSidebar').addEventListener('click', () => {
@@ -222,14 +583,37 @@
         mainContent.classList.toggle('expanded');
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = 'login.html'; });
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await signOut(auth);
+        window.location.href = 'login.html';
+    });
 
+    // Set minimum date to today
+    document.getElementById('appointmentDate').min = new Date().toISOString().split('T')[0];
+
+    // Firebase Auth - Get the actual logged-in user
     onAuthStateChanged(auth, async (user) => {
-        if (!user) { window.location.href = 'login.html'; return; }
+        if (!user) {
+            // No user logged in, redirect to login page
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // Set the current user from Firebase Auth
         currentUser = user;
-        patientId = await getPatientId(user);
-        renderDoctors();
-        document.getElementById('appointmentDate').min = new Date().toISOString().split('T')[0];
+        console.log('Logged in user:', currentUser.email);
+        
+        // Update sidebar with user's name
+        const displayName = currentUser.displayName || currentUser.email.split('@')[0];
+        document.getElementById('userName').innerHTML = displayName;
+        
+        // Load doctors
+        await loadDoctors();
+        
+        // Pre-populate patient record (creates if doesn't exist)
+        patientId = await getOrCreatePatient(currentUser);
+        console.log('Patient ID ready:', patientId);
     });
 </script>
 </body>

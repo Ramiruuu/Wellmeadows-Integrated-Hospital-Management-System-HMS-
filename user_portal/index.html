@@ -6,6 +6,7 @@
     <title>Patient Dashboard - Wellmeadows</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
@@ -51,7 +52,6 @@
         .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .user-avatar { width: 40px; height: 40px; background: #287b9e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .user-name { font-weight: 600; font-size: 0.85rem; color: white; }
-        .user-role { font-size: 0.7rem; color: #94a3b8; }
         .logout-btn {
             width: 100%; background: rgba(220,38,38,0.2); border: none; color: #fca5a5;
             padding: 10px; border-radius: 10px; cursor: pointer; display: flex;
@@ -89,64 +89,22 @@
             margin-bottom: 32px;
             border: 1px solid #e2e8f0;
         }
-        .steps-section h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #0f2b3d;
-            margin-bottom: 20px;
-        }
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-        .step-card {
-            text-align: center;
-            position: relative;
-        }
+        .steps-section h2 { font-size: 1rem; font-weight: 600; color: #0f2b3d; margin-bottom: 20px; }
+        .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .step-card { text-align: center; position: relative; }
         .step-number {
-            width: 36px;
-            height: 36px;
-            background: #287b9e;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            margin: 0 auto 12px;
+            width: 36px; height: 36px; background: #287b9e; color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; margin: 0 auto 12px;
         }
-        .step-card h3 {
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #0f2b3d;
-        }
-        .step-card p {
-            font-size: 0.75rem;
-            color: #64748b;
-        }
-        .step-arrow {
-            position: absolute;
-            right: -20px;
-            top: 15px;
-            color: #cbd5e1;
-        }
+        .step-card h3 { font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #0f2b3d; }
+        .step-card p { font-size: 0.75rem; color: #64748b; }
+        .step-arrow { position: absolute; right: -20px; top: 15px; color: #cbd5e1; }
         .step-card:last-child .step-arrow { display: none; }
 
         /* Dashboard Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-        .card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-        }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+        .card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; }
         .card-header {
             padding: 18px 24px;
             border-bottom: 1px solid #eef2f8;
@@ -171,48 +129,25 @@
         .appointment-info p { font-size: 0.7rem; color: #64748b; }
         
         .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: 600;
+            display: inline-block; padding: 4px 10px; border-radius: 20px;
+            font-size: 0.65rem; font-weight: 600;
         }
         .status-confirmed { background: #dcfce7; color: #15803d; }
         .status-scheduled { background: #fef3c7; color: #d97706; }
         .status-completed { background: #dbeafe; color: #2563eb; }
 
         /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-        }
+        .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
         .action-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            color: #1e293b;
-            display: block;
+            background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px;
+            text-align: center; cursor: pointer; transition: all 0.2s;
+            text-decoration: none; color: #1e293b; display: block;
         }
-        .action-card:hover {
-            border-color: #287b9e;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
+        .action-card:hover { border-color: #287b9e; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
         .action-card strong { font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 4px; }
         .action-card small { font-size: 0.65rem; color: #64748b; }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #94a3b8;
-            font-size: 0.8rem;
-        }
+        .empty-state { text-align: center; padding: 40px; color: #94a3b8; font-size: 0.8rem; }
 
         @media (max-width: 1000px) {
             .steps-grid { grid-template-columns: repeat(2, 1fr); }
@@ -234,7 +169,6 @@
 </head>
 <body>
 
-<!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <div class="toggle-btn" id="toggleSidebar"><i class="fas fa-chevron-left"></i></div>
     <div class="sidebar-header">
@@ -247,15 +181,13 @@
         <a href="my-appointments.html" class="nav-item"><i class="fas fa-calendar-check"></i><span>My Appointments</span></a>
         <a href="doctors.html" class="nav-item"><i class="fas fa-user-md"></i><span>Our Doctors</span></a>
         <a href="medical-records.html" class="nav-item"><i class="fas fa-notes-medical"></i><span>Medical Records</span></a>
-        <a href="payment.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Payments</span></a>
     </nav>
     <div class="sidebar-footer">
-        <div class="user-info"><div class="user-avatar"><i class="fas fa-user-circle"></i></div><div class="user-details"><div class="user-name" id="userName">Patient</div><div class="user-role" id="userRole">Patient</div></div></div>
+        <div class="user-info"><div class="user-avatar"><i class="fas fa-user-circle"></i></div><div class="user-details"><div class="user-name" id="userName">Patient</div></div></div>
         <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
 </aside>
 
-<!-- Main Content -->
 <main class="main-content" id="mainContent">
     <div class="top-header">
         <div class="page-title">
@@ -288,164 +220,154 @@
     <div class="steps-section">
         <h2>How to Book an Appointment</h2>
         <div class="steps-grid">
-            <div class="step-card">
-                <div class="step-number">1</div>
-                <h3>Choose Doctor</h3>
-                <p>Browse and select your preferred doctor</p>
-                <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
-            </div>
-            <div class="step-card">
-                <div class="step-number">2</div>
-                <h3>Select Date & Time</h3>
-                <p>Pick available slot that suits you</p>
-                <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
-            </div>
-            <div class="step-card">
-                <div class="step-number">3</div>
-                <h3>Confirm Details</h3>
-                <p>Review and confirm appointment</p>
-                <div class="step-arrow"><i class="fas fa-arrow-right"></i></div>
-            </div>
-            <div class="step-card">
-                <div class="step-number">4</div>
-                <h3>Get Reminders</h3>
-                <p>Receive SMS/Email reminders</p>
-            </div>
+            <div class="step-card"><div class="step-number">1</div><h3>Choose Doctor</h3><p>Browse and select your preferred doctor</p><div class="step-arrow"><i class="fas fa-arrow-right"></i></div></div>
+            <div class="step-card"><div class="step-number">2</div><h3>Select Date & Time</h3><p>Pick available slot that suits you</p><div class="step-arrow"><i class="fas fa-arrow-right"></i></div></div>
+            <div class="step-card"><div class="step-number">3</div><h3>Confirm Details</h3><p>Review and confirm appointment</p><div class="step-arrow"><i class="fas fa-arrow-right"></i></div></div>
+            <div class="step-card"><div class="step-number">4</div><h3>Get Reminders</h3><p>Receive SMS/Email reminders</p></div>
         </div>
     </div>
 
     <!-- Dashboard Grid -->
     <div class="dashboard-grid">
-        <!-- Upcoming Appointments -->
         <div class="card">
-            <div class="card-header">
-                <h3>Upcoming Appointments</h3>
-                <a href="my-appointments.html" class="view-all">View All →</a>
-            </div>
-            <div class="card-body" id="upcomingList">
-                <div class="empty-state">Loading appointments...</div>
-            </div>
+            <div class="card-header"><h3>Upcoming Appointments</h3><a href="my-appointments.html" class="view-all">View All →</a></div>
+            <div class="card-body" id="upcomingList"><div class="empty-state">Loading appointments...</div></div>
         </div>
-
-        <!-- Recent Medical Records -->
         <div class="card">
-            <div class="card-header">
-                <h3>Recent Medical Records</h3>
-                <a href="medical-records.html" class="view-all">View All →</a>
-            </div>
-            <div class="card-body" id="recentRecords">
-                <div class="empty-state">Loading records...</div>
-            </div>
+            <div class="card-header"><h3>Recent Medical Records</h3><a href="medical-records.html" class="view-all">View All →</a></div>
+            <div class="card-body" id="recentRecords"><div class="empty-state">Loading records...</div></div>
         </div>
     </div>
 
     <!-- Quick Actions -->
     <div class="quick-actions">
-        <a href="book-appointment.html" class="action-card">
-            <strong>Book Appointment</strong>
-            <small>Schedule new visit</small>
-        </a>
-        <a href="my-appointments.html" class="action-card">
-            <strong>My Appointments</strong>
-            <small>View schedule</small>
-        </a>
-        <a href="doctors.html" class="action-card">
-            <strong>Our Doctors</strong>
-            <small>Meet our team</small>
-        </a>
-        <a href="payment.html" class="action-card">
-            <strong>Pay Bills</strong>
-            <small>Settle payments</small>
-        </a>
+        <a href="book-appointment.html" class="action-card"><strong>Book Appointment</strong><small>Schedule new visit</small></a>
+        <a href="my-appointments.html" class="action-card"><strong>My Appointments</strong><small>View schedule</small></a>
+        <a href="doctors.html" class="action-card"><strong>Our Doctors</strong><small>Meet our team</small></a>
     </div>
 </main>
 
 <script type="module">
-    import { 
-        auth, 
-        db,
-        onAuthStateChanged, 
-        signOut,
-        collection,
-        query,
-        where,
-        getDocs,
-        orderBy,
-        doc,
-        getDoc
-    } from './assets/js/firebase-config.js';
+    import { auth, onAuthStateChanged, signOut } from './assets/js/firebase-config.js';
+
+    // Supabase client
+    const SUPABASE_URL = 'https://cqetejeaeasqkafdgjri.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_75JVFc0QWySSyAPQVO-C1g_Udqt9tgQ';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
-    let patientId = null;
+    let patientData = null;
 
-    async function getPatientData(user) {
-        const patientsRef = collection(db, 'patients');
-        const q = query(patientsRef, where("email", "==", user.email));
-        const snapshot = await getDocs(q);
-        if (!snapshot.empty) {
-            const docSnap = snapshot.docs[0];
-            patientId = docSnap.id;
-            return { id: patientId, ...docSnap.data() };
+    // Get patient from Supabase by email
+    async function getPatientByEmail(email) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('patient')
+                .select('*')
+                .eq('email', email)
+                .maybeSingle();
+            
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Error fetching patient:', error);
+            return null;
         }
-        return null;
     }
 
-    async function loadAppointments() {
+    // Load appointments from Supabase
+    async function loadAppointments(patientId) {
         if (!patientId) return [];
-        const appointmentsRef = collection(db, 'appointments');
-        const q = query(appointmentsRef, where("patientId", "==", patientId), orderBy("appointmentDate", "asc"));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        try {
+            const { data, error } = await supabaseClient
+                .from('appointment')
+                .select(`
+                    *,
+                    staff:staff_id(first_name, last_name, position)
+                `)
+                .eq('patient_id', patientId)
+                .order('appointment_date', { ascending: true });
+            
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error loading appointments:', error);
+            return [];
+        }
     }
 
-    async function loadTreatments() {
+    // Load treatments/medical records from Supabase treatment table
+    async function loadTreatments(patientId) {
         if (!patientId) return [];
-        const treatmentsRef = collection(db, 'treatments');
-        const q = query(treatmentsRef, where("patientId", "==", patientId), orderBy("treatmentDate", "desc"));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        try {
+            const { data, error } = await supabaseClient
+                .from('treatment')
+                .select(`
+                    *,
+                    staff:staff_id(first_name, last_name, position)
+                `)
+                .eq('patient_id', patientId)
+                .order('treatment_date', { ascending: false });
+            
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error loading treatments:', error);
+            return [];
+        }
     }
 
-    async function loadBills() {
+    // Load bills from Supabase
+    async function loadBills(patientId) {
         if (!patientId) return [];
-        const billsRef = collection(db, 'bills');
-        const q = query(billsRef, where("patientId", "==", patientId));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        try {
+            const { data, error } = await supabaseClient
+                .from('bill')
+                .select('*')
+                .eq('patient_id', patientId);
+            
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error loading bills:', error);
+            return [];
+        }
     }
 
-    function formatDate(date) {
-        if (!date) return 'N/A';
-        if (date.toDate) return date.toDate().toLocaleDateString();
-        return new Date(date).toLocaleDateString();
+    function formatDate(dateStr) {
+        if (!dateStr) return 'N/A';
+        return new Date(dateStr).toLocaleDateString();
     }
 
     async function loadDashboard() {
         if (!currentUser) return;
         
-        const patient = await getPatientData(currentUser);
-        
-        const appointments = await loadAppointments();
-        const treatments = await loadTreatments();
-        const bills = await loadBills();
-        
-        const today = new Date().toISOString().split('T')[0];
-        const upcoming = appointments.filter(a => a.appointmentDate >= today && a.status !== 'Cancelled');
-        const pendingAmount = bills.filter(b => b.status === 'pending').reduce((sum, b) => sum + (b.amount || 0), 0);
-        
-        document.getElementById('totalAppointments').textContent = appointments.length;
-        document.getElementById('upcomingCount').textContent = upcoming.length;
-        document.getElementById('treatmentCount').textContent = treatments.length;
-        document.getElementById('pendingBills').innerHTML = `₱${pendingAmount.toLocaleString()}`;
+        // Get patient record from Supabase
+        patientData = await getPatientByEmail(currentUser.email);
         
         // Update user name in sidebar
-        if (patient) {
-            document.getElementById('userName').innerHTML = `${patient.firstName || ''} ${patient.lastName || ''}`.trim() || 'Patient';
+        if (patientData) {
+            const fullName = `${patientData.first_name || ''} ${patientData.last_name || ''}`.trim();
+            document.getElementById('userName').innerHTML = fullName || 'Patient';
         } else if (currentUser.displayName) {
             document.getElementById('userName').innerHTML = currentUser.displayName;
         } else if (currentUser.email) {
             document.getElementById('userName').innerHTML = currentUser.email.split('@')[0];
         }
+        
+        // Load data
+        const appointments = await loadAppointments(patientData?.patient_id);
+        const treatments = await loadTreatments(patientData?.patient_id);
+        const bills = await loadBills(patientData?.patient_id);
+        
+        const today = new Date().toISOString().split('T')[0];
+        const upcoming = appointments.filter(a => a.appointment_date >= today && a.status !== 'Cancelled');
+        const pendingAmount = bills.filter(b => b.status === 'pending').reduce((sum, b) => sum + (b.total_amount || 0), 0);
+        
+        document.getElementById('totalAppointments').textContent = appointments.length;
+        document.getElementById('upcomingCount').textContent = upcoming.length;
+        document.getElementById('treatmentCount').textContent = treatments.length;
+        document.getElementById('pendingBills').innerHTML = `₱${pendingAmount.toLocaleString()}`;
         
         // Upcoming appointments list
         const upcomingList = document.getElementById('upcomingList');
@@ -453,12 +375,13 @@
             upcomingList.innerHTML = '<div class="empty-state">No upcoming appointments. <a href="book-appointment.html" style="color:#287b9e;">Book one now →</a></div>';
         } else {
             upcomingList.innerHTML = upcoming.slice(0, 5).map(apt => {
+                const doctorName = apt.staff ? `Dr. ${apt.staff.first_name} ${apt.staff.last_name}` : 'Doctor';
                 let statusClass = apt.status === 'Confirmed' ? 'status-confirmed' : 'status-scheduled';
                 return `
                     <div class="appointment-item">
                         <div class="appointment-info">
-                            <h4>${apt.doctorName || 'Doctor'}</h4>
-                            <p>${formatDate(apt.appointmentDate)} at ${apt.appointmentTime}</p>
+                            <h4>${doctorName}</h4>
+                            <p>${formatDate(apt.appointment_date)} at ${apt.appointment_time}</p>
                         </div>
                         <span class="status-badge ${statusClass}">${apt.status || 'Scheduled'}</span>
                     </div>
@@ -466,20 +389,23 @@
             }).join('');
         }
         
-        // Recent treatments
+        // Recent medical records from treatment table
         const recordsList = document.getElementById('recentRecords');
         if (treatments.length === 0) {
             recordsList.innerHTML = '<div class="empty-state">No medical records yet</div>';
         } else {
-            recordsList.innerHTML = treatments.slice(0, 5).map(tx => `
-                <div class="record-item">
-                    <div>
-                        <h4 style="font-weight:600; margin-bottom:4px;">${tx.diagnosis || 'Consultation'}</h4>
-                        <p style="font-size:0.7rem; color:#64748b;">${formatDate(tx.treatmentDate)}</p>
+            recordsList.innerHTML = treatments.slice(0, 5).map(tx => {
+                const doctorName = tx.staff ? `Dr. ${tx.staff.first_name} ${tx.staff.last_name}` : 'Doctor';
+                return `
+                    <div class="record-item">
+                        <div>
+                            <h4 style="font-weight:600; margin-bottom:4px;">${tx.diagnosis || 'Consultation'}</h4>
+                            <p style="font-size:0.7rem; color:#64748b;">${formatDate(tx.treatment_date)} with ${doctorName}</p>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color:#94a3b8;"></i>
                     </div>
-                    <i class="fas fa-chevron-right" style="color:#94a3b8;"></i>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
     }
 
@@ -491,11 +417,6 @@
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('closed');
             mainContent.classList.toggle('expanded');
-            const icon = toggleBtn.querySelector('i');
-            if (icon) {
-                icon.classList.toggle('fa-chevron-left');
-                icon.classList.toggle('fa-chevron-right');
-            }
         });
     }
 
@@ -508,13 +429,14 @@
         });
     }
 
-    // Auth check
+    // Auth check - Get actual Firebase user
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = 'login.html';
             return;
         }
         currentUser = user;
+        console.log('Logged in user:', currentUser.email);
         await loadDashboard();
     });
 </script>

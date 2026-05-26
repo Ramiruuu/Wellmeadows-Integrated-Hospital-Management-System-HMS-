@@ -5,10 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Appointments - Wellmeadows</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 
+        /* Sidebar - Same as Dashboard */
         .sidebar {
             position: fixed; top: 0; left: 0; height: 100%; width: 280px;
             background: linear-gradient(180deg, #0f2b3d 0%, #0a1e2c 100%);
@@ -17,58 +20,79 @@
         .sidebar.closed { width: 80px; }
         .sidebar.closed .sidebar-nav span, .sidebar.closed .logo-text, 
         .sidebar.closed .logo-sub, .sidebar.closed .user-details { display: none; }
+        .sidebar.closed .sidebar-nav .nav-item { justify-content: center; padding: 12px; }
+        
         .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
         .logo-area { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { font-size: 1.5rem; font-weight: 700; color: #4db8ff; }
+        .logo-icon { font-size: 2rem; color: #4db8ff; }
         .logo-text { font-size: 1.3rem; font-weight: 700; color: white; }
         .logo-sub { font-size: 0.7rem; color: #94a3b8; margin-top: 6px; padding-left: 52px; }
+        
         .toggle-btn {
             position: absolute; top: 20px; right: -12px; background: #287b9e;
             border: 2px solid #0f2b3d; border-radius: 50%; width: 28px; height: 28px;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
             color: white; z-index: 101;
         }
+        
         .sidebar-nav { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
         .nav-item {
             display: flex; align-items: center; gap: 14px; padding: 12px 16px;
             border-radius: 12px; color: #cbd5e6; text-decoration: none;
             font-weight: 500; font-size: 0.9rem; transition: all 0.2s;
         }
+        .nav-item i { width: 24px; font-size: 1.1rem; }
         .nav-item:hover { background: rgba(77,184,255,0.12); color: white; }
         .nav-item.active { background: #287b9e; color: white; }
+        
         .sidebar-footer {
             position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
             border-top: 1px solid rgba(255,255,255,0.08);
         }
         .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .user-avatar { width: 40px; height: 40px; background: #287b9e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .user-avatar { width: 40px; height: 40px; background: #287b9e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .user-name { font-weight: 600; font-size: 0.85rem; color: white; }
         .logout-btn {
             width: 100%; background: rgba(220,38,38,0.2); border: none; color: #fca5a5;
-            padding: 10px; border-radius: 10px; cursor: pointer;
+            padding: 10px; border-radius: 10px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; gap: 8px;
         }
         .logout-btn:hover { background: rgba(220,38,38,0.4); color: white; }
 
+        /* Main Content */
         .main-content { margin-left: 280px; padding: 24px 32px; transition: all 0.3s; min-height: 100vh; }
         .main-content.expanded { margin-left: 80px; }
         .top-header { margin-bottom: 32px; }
         .top-header h1 { font-size: 1.8rem; font-weight: 700; color: #0f2b3d; margin-bottom: 8px; }
 
+        /* Tabs */
         .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid #e2e8f0; }
         .tab { padding: 12px 24px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 500; }
         .tab.active { color: #287b9e; border-bottom-color: #287b9e; }
 
+        /* Card & Table */
         .card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; }
         .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #eef2f8; font-size: 0.85rem; }
         th { background: #f8fafc; font-weight: 600; color: #0f2b3d; }
-        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        
+        .status-badge {
+            display: inline-block; padding: 4px 10px; border-radius: 20px;
+            font-size: 0.65rem; font-weight: 600;
+        }
         .status-confirmed { background: #dcfce7; color: #15803d; }
         .status-scheduled { background: #fef3c7; color: #d97706; }
         .status-completed { background: #dbeafe; color: #2563eb; }
         .status-cancelled { background: #fee2e2; color: #b91c1c; }
-        .btn-cancel { background: #dc2626; color: white; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; }
+        
+        .btn-cancel {
+            background: #dc2626; color: white; border: none;
+            padding: 4px 12px; border-radius: 6px; cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .btn-cancel:hover { background: #b91c1c; }
+        
         .empty-state { text-align: center; padding: 48px; color: #94a3b8; }
 
         @media (max-width: 768px) {
@@ -84,81 +108,193 @@
 <body>
 
 <aside class="sidebar" id="sidebar">
-    <div class="toggle-btn" id="toggleSidebar">〈</div>
+    <div class="toggle-btn" id="toggleSidebar"><i class="fas fa-chevron-left"></i></div>
     <div class="sidebar-header">
-        <div class="logo-area"><div class="logo-icon">🏥</div><div class="logo-text">Wellmeadows</div></div>
+        <div class="logo-area"><i class="fas fa-hospital-user logo-icon"></i><div class="logo-text">Wellmeadows</div></div>
         <div class="logo-sub">Patient Portal</div>
     </div>
     <nav class="sidebar-nav">
-        <a href="index.html" class="nav-item"><span>Dashboard</span></a>
-        <a href="book-appointment.html" class="nav-item"><span>Book Appointment</span></a>
-        <a href="my-appointments.html" class="nav-item active"><span>My Appointments</span></a>
-        <a href="doctors.html" class="nav-item"><span>Our Doctors</span></a>
-        <a href="medical-records.html" class="nav-item"><span>Medical Records</span></a>
-        <a href="payment.html" class="nav-item"><span>Payments</span></a>
-    </nav>
+        <a href="index.html" class="nav-item"><i class="fas fa-chalkboard-user"></i><span>Dashboard</span></a>
+        <a href="book-appointment.html" class="nav-item"><i class="fas fa-calendar-plus"></i><span>Book Appointment</span></a>
+        <a href="my-appointments.html" class="nav-item active"><i class="fas fa-calendar-check"></i><span>My Appointments</span></a>
+        <a href="doctors.html" class="nav-item"><i class="fas fa-user-md"></i><span>Our Doctors</span></a>
+        <a href="medical-records.html" class="nav-item"><i class="fas fa-notes-medical"></i><span>Medical Records</span></a>
     <div class="sidebar-footer">
-        <div class="user-info"><div class="user-avatar">👤</div><div class="user-details"><div class="user-name" id="userName">Patient</div></div></div>
-        <button class="logout-btn" id="logoutBtn">Logout</button>
+        <div class="user-info"><div class="user-avatar"><i class="fas fa-user-circle"></i></div><div class="user-details"><div class="user-name" id="userName">Patient</div></div></div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
 </aside>
 
 <main class="main-content" id="mainContent">
     <div class="top-header"><h1>My Appointments</h1></div>
-    <div class="tabs"><div class="tab active" data-tab="upcoming">Upcoming</div><div class="tab" data-tab="past">Past</div></div>
-    <div class="card"><div class="table-wrapper"><table><thead><tr><th>Date</th><th>Time</th><th>Doctor</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody id="appointmentsTable"></tbody></table></div></div>
+    
+    <div class="tabs">
+        <div class="tab active" data-tab="upcoming">Upcoming</div>
+        <div class="tab" data-tab="past">Past</div>
+    </div>
+    
+    <div class="card">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Doctor</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="appointmentsTable">
+                    <tr><td colspan="6" class="empty-state">Loading appointments...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </main>
 
 <script type="module">
-    import { auth, db, onAuthStateChanged, signOut, collection, query, where, getDocs, updateDoc, doc, orderBy } from './assets/js/firebase-config.js';
+    import { auth, onAuthStateChanged, signOut } from './assets/js/firebase-config.js';
+
+    // Supabase client
+    const SUPABASE_URL = 'https://cqetejeaeasqkafdgjri.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_75JVFc0QWySSyAPQVO-C1g_Udqt9tgQ';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
-    let patientId = null;
+    let patientData = null;
     let currentTab = 'upcoming';
 
-    async function getPatientId(user) {
-        const q = query(collection(db, 'patients'), where("email", "==", user.email));
-        const snapshot = await getDocs(q);
-        return snapshot.empty ? null : snapshot.docs[0].id;
+    // Get patient from Supabase by email
+    async function getPatientByEmail(email) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('patient')
+                .select('patient_id, first_name, last_name')
+                .eq('email', email)
+                .maybeSingle();
+            
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Error fetching patient:', error);
+            return null;
+        }
     }
 
+    // Load appointments from Supabase
     async function loadAppointments() {
-        if (!patientId) return;
-        const q = query(collection(db, 'appointments'), where("patientId", "==", patientId), orderBy("appointmentDate", "asc"));
-        const snapshot = await getDocs(q);
-        let appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const today = new Date().toISOString().split('T')[0];
-        let filtered = currentTab === 'upcoming' 
-            ? appointments.filter(a => a.appointmentDate >= today && a.status !== 'Cancelled')
-            : appointments.filter(a => a.appointmentDate < today || a.status === 'Cancelled');
-        renderTable(filtered);
+        if (!patientData?.patient_id) {
+            document.getElementById('appointmentsTable').innerHTML = '<tr><td colspan="6" class="empty-state">No appointments found</td></tr>';
+            return;
+        }
+        
+        try {
+            const { data, error } = await supabaseClient
+                .from('appointment')
+                .select(`
+                    appointment_id,
+                    appointment_date,
+                    appointment_time,
+                    reason,
+                    status,
+                    service_fee,
+                    staff:staff_id (
+                        staff_id,
+                        first_name,
+                        last_name,
+                        position,
+                        specialty
+                    )
+                `)
+                .eq('patient_id', patientData.patient_id)
+                .order('appointment_date', { ascending: true });
+            
+            if (error) throw error;
+            
+            const appointments = data || [];
+            const today = new Date().toISOString().split('T')[0];
+            
+            let filtered = currentTab === 'upcoming' 
+                ? appointments.filter(a => a.appointment_date >= today && a.status !== 'Cancelled')
+                : appointments.filter(a => a.appointment_date < today || a.status === 'Cancelled');
+            
+            renderTable(filtered);
+        } catch (error) {
+            console.error('Error loading appointments:', error);
+            document.getElementById('appointmentsTable').innerHTML = '<tr><td colspan="6" class="empty-state">Error loading appointments</td></tr>';
+        }
     }
 
-    async function cancelAppointment(id) {
-        if (confirm('Cancel this appointment?')) {
-            await updateDoc(doc(db, 'appointments', id), { status: 'Cancelled' });
+    // Cancel appointment
+    async function cancelAppointment(appointmentId) {
+        if (!confirm('Are you sure you want to cancel this appointment?')) return;
+        
+        try {
+            const { error } = await supabaseClient
+                .from('appointment')
+                .update({ status: 'Cancelled', updated_at: new Date().toISOString() })
+                .eq('appointment_id', appointmentId);
+            
+            if (error) throw error;
+            
             await loadAppointments();
+            alert('Appointment cancelled successfully');
+        } catch (error) {
+            console.error('Error cancelling appointment:', error);
+            alert('Error cancelling appointment');
         }
     }
 
     function renderTable(appointments) {
         const tbody = document.getElementById('appointmentsTable');
-        if (appointments.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No appointments found</td></tr>'; return; }
+        
+        if (appointments.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No appointments found</td></tr>';
+            return;
+        }
+        
         tbody.innerHTML = appointments.map(apt => {
-            let statusClass = { Scheduled: 'status-scheduled', Confirmed: 'status-confirmed', Completed: 'status-completed', Cancelled: 'status-cancelled' }[apt.status] || 'status-scheduled';
-            return `<tr>
-                <td>${new Date(apt.appointmentDate).toLocaleDateString()}</td>
-                <td>${apt.appointmentTime}</td>
-                <td><strong>${apt.doctorName || 'Doctor'}</strong><br><small style="color:#64748b;">${apt.doctorSpecialty || ''}</small></td>
-                <td>${apt.reason || 'Consultation'}</td>
-                <td><span class="status-badge ${statusClass}">${apt.status || 'Scheduled'}</span></td>
-                <td>${apt.status !== 'Cancelled' && apt.status !== 'Completed' ? `<button class="btn-cancel" onclick="cancelAppointment('${apt.id}')">Cancel</button>` : '-'}</td>
-            </tr>`;
+            const doctor = apt.staff;
+            const doctorName = doctor ? `Dr. ${doctor.first_name} ${doctor.last_name}` : 'Doctor';
+            const doctorSpecialty = doctor?.specialty || doctor?.position || '';
+            
+            let statusClass = '';
+            switch(apt.status) {
+                case 'Confirmed': statusClass = 'status-confirmed'; break;
+                case 'Scheduled': statusClass = 'status-scheduled'; break;
+                case 'Completed': statusClass = 'status-completed'; break;
+                case 'Cancelled': statusClass = 'status-cancelled'; break;
+                default: statusClass = 'status-scheduled';
+            }
+            
+            const isActive = apt.status !== 'Cancelled' && apt.status !== 'Completed';
+            const aptDate = new Date(apt.appointment_date);
+            const isPast = aptDate < new Date();
+            
+            return `
+                <tr>
+                    <td>${aptDate.toLocaleDateString()}</td>
+                    <td>${apt.appointment_time}</td>
+                    <td>
+                        <strong>${doctorName}</strong><br>
+                        <small style="color:#64748b;">${doctorSpecialty}</small>
+                    </td>
+                    <td>${apt.reason || 'Consultation'}</td>
+                    <td><span class="status-badge ${statusClass}">${apt.status || 'Scheduled'}</span></td>
+                    <td>
+                        ${isActive && !isPast ? `<button class="btn-cancel" onclick="cancelAppointment(${apt.appointment_id})">Cancel</button>` : '-'}
+                    </td>
+                </tr>
+            `;
         }).join('');
+        
+        // Make cancel function global for onclick
+        window.cancelAppointment = cancelAppointment;
     }
 
-    window.cancelAppointment = cancelAppointment;
-
+    // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -168,19 +304,47 @@
         });
     });
 
+    // Sidebar toggle
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
-    document.getElementById('toggleSidebar').addEventListener('click', () => {
-        sidebar.classList.toggle('closed');
-        mainContent.classList.toggle('expanded');
-    });
+    const toggleBtn = document.getElementById('toggleSidebar');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('closed');
+            mainContent.classList.toggle('expanded');
+        });
+    }
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = 'login.html'; });
+    // Logout
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+    }
 
+    // Initialize - Get logged in user from Firebase Auth
     onAuthStateChanged(auth, async (user) => {
-        if (!user) { window.location.href = 'login.html'; return; }
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
         currentUser = user;
-        patientId = await getPatientId(user);
+        
+        // Get patient record from Supabase
+        patientData = await getPatientByEmail(currentUser.email);
+        
+        // Update sidebar user name
+        if (patientData) {
+            const fullName = `${patientData.first_name || ''} ${patientData.last_name || ''}`.trim();
+            document.getElementById('userName').innerHTML = fullName || 'Patient';
+        } else if (currentUser.displayName) {
+            document.getElementById('userName').innerHTML = currentUser.displayName;
+        } else {
+            document.getElementById('userName').innerHTML = currentUser.email.split('@')[0];
+        }
+        
         await loadAppointments();
     });
 </script>
