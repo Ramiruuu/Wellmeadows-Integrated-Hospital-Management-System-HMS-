@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Wellmeadows</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+
+        .sidebar {
+            position: fixed; top: 0; left: 0; height: 100%; width: 280px;
+            background: linear-gradient(180deg, #0f2b3d 0%, #0a1e2c 100%);
+            color: #e2e8f0; transition: all 0.3s; z-index: 100; overflow-y: auto;
+        }
+        .sidebar.closed { width: 80px; }
+        .sidebar.closed .sidebar-nav span, .sidebar.closed .logo-text, 
+        .sidebar.closed .logo-sub, .sidebar.closed .user-details { display: none; }
+        .sidebar.closed .sidebar-nav .nav-item { justify-content: center; padding: 12px; }
+        
+        .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { font-size: 2rem; color: #4db8ff; }
+        .logo-text { font-size: 1.3rem; font-weight: 700; color: white; }
+        .logo-sub { font-size: 0.7rem; color: #94a3b8; margin-top: 6px; padding-left: 52px; }
+        
+        .toggle-btn {
+            position: absolute; top: 20px; right: -12px; background: #287b9e;
+            border: 2px solid #0f2b3d; border-radius: 50%; width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            color: white; z-index: 101;
+        }
+        
+        .sidebar-nav { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+        .nav-item {
+            display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+            border-radius: 12px; color: #cbd5e6; text-decoration: none;
+            font-weight: 500; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .nav-item i { width: 24px; font-size: 1.1rem; }
+        .nav-item:hover { background: rgba(77,184,255,0.12); color: white; }
+        .nav-item.active { background: #287b9e; color: white; }
+        
+        .sidebar-footer {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .user-avatar { width: 40px; height: 40px; background: #287b9e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .user-name { font-weight: 600; font-size: 0.85rem; color: white; }
+        .user-role { font-size: 0.7rem; color: #94a3b8; }
+        .logout-btn {
+            width: 100%; background: rgba(220,38,38,0.2); border: none; color: #fca5a5;
+            padding: 10px; border-radius: 10px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; gap: 8px;
+        }
+        .logout-btn:hover { background: rgba(220,38,38,0.4); color: white; }
+
+        .main-content { margin-left: 280px; padding: 24px 32px; transition: all 0.3s; min-height: 100vh; }
+        .main-content.expanded { margin-left: 80px; }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .page-title h1 { font-size: 1.8rem; font-weight: 700; color: #0f2b3d; margin-bottom: 4px; }
+        .page-title p { color: #64748b; font-size: 0.85rem; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px; }
+        .stat-card {
+            background: white; border-radius: 20px; padding: 20px; display: flex;
+            align-items: center; gap: 16px; border: 1px solid #e2e8f0;
+        }
+        .stat-icon { width: 50px; height: 50px; background: #eef2ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+        .stat-icon i { font-size: 1.4rem; color: #287b9e; }
+        .stat-info h3 { font-size: 1.6rem; font-weight: 700; color: #0f2b3d; }
+        .stat-info p { color: #64748b; font-size: 0.75rem; margin-top: 4px; }
+
+        .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 32px; }
+        .chart-card { background: white; border-radius: 20px; padding: 20px; border: 1px solid #e2e8f0; }
+        .chart-card h3 { margin-bottom: 16px; font-size: 1rem; color: #0f2b3d; }
+        canvas { max-height: 280px; }
+
+        .appointments-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .card-header { padding: 20px 24px; border-bottom: 1px solid #eef2f8; display: flex; justify-content: space-between; align-items: center; }
+        .card-header h3 { font-size: 1rem; font-weight: 600; color: #0f2b3d; }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #eef2f8; font-size: 0.85rem; }
+        th { background: #f8fafc; font-weight: 600; color: #0f2b3d; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        .status-scheduled { background: #fef3c7; color: #d97706; }
+        .status-confirmed { background: #dbeafe; color: #2563eb; }
+        .status-completed { background: #dcfce7; color: #15803d; }
+        .empty-state { text-align: center; padding: 48px; color: #94a3b8; }
+        .refresh-btn { background: none; border: none; color: #287b9e; cursor: pointer; font-size: 0.85rem; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 80px; }
+            .sidebar .logo-text, .sidebar .logo-sub, .sidebar .user-details { display: none; }
+            .sidebar .nav-item { justify-content: center; padding: 12px; }
+            .sidebar .nav-item span { display: none; }
+            .main-content { margin-left: 80px; padding: 20px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" id="toggleSidebar"><i class="fas fa-chevron-left"></i></div>
+    <div class="sidebar-header">
+        <div class="logo-area"><i class="fas fa-hospital-user logo-icon"></i><div class="logo-text">Wellmeadows</div></div>
+        <div class="logo-sub">Admin Portal</div>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="index.html" class="nav-item active"><i class="fas fa-chalkboard-user"></i><span>Dashboard</span></a>
+        <a href="appointments.html" class="nav-item"><i class="fas fa-calendar-check"></i><span>Appointments</span></a>
+        <a href="calendar.html" class="nav-item"><i class="fas fa-calendar-alt"></i><span>Calendar</span></a>
+        <a href="patients.html" class="nav-item"><i class="fas fa-users"></i><span>Patients</span></a>
+        <a href="staff-schedule.html" class="nav-item"><i class="fas fa-user-md"></i><span>Staff Schedule</span></a>
+        <a href="reports.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Reports</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info"><div class="user-avatar"><i class="fas fa-user-circle"></i></div><div class="user-details"><div class="user-name" id="adminName">Admin</div><div class="user-role" id="adminRole">Administrator</div></div></div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+</aside>
+
+<main class="main-content" id="mainContent">
+    <div class="top-header">
+        <div class="page-title"><h1>Dashboard</h1><p>Welcome back! Here's your hospital overview.</p></div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-day"></i></div><div class="stat-info"><h3 id="todayCount">0</h3><p>Today's Appointments</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-week"></i></div><div class="stat-info"><h3 id="weeklyCount">0</h3><p>This Week</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-info"><h3 id="patientCount">0</h3><p>Total Patients</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-md"></i></div><div class="stat-info"><h3 id="doctorCount">0</h3><p>Doctors</p></div></div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Appointments by Day (This Week)</h3><canvas id="weeklyChart"></canvas></div>
+        <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Appointments by Status</h3><canvas id="statusChart"></canvas></div>
+    </div>
+
+    <div class="appointments-card">
+        <div class="card-header"><h3><i class="fas fa-clock"></i> Today's Appointments</h3><button class="refresh-btn" onclick="loadDashboard()"><i class="fas fa-sync-alt"></i> Refresh</button></div>
+        <div class="table-wrapper"><table><thead><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th></tr></thead><tbody id="appointmentsTable"><tr><td colspan="4" class="empty-state">Loading appointments...</td></tr></tbody>}</div>
+    </div>
+</main>
+
+<script>
+    const SUPABASE_URL = 'https://cqetejeaeasqkafdgjri.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_75JVFc0QWySSyAPQVO-C1g_Udqt9tgQ';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let weeklyChart = null;
+    let statusChart = null;
+    let allAppointmentsData = [];
+
+    // Function to get appointment date column (handles different column names)
+    function getAppointmentDate(apt) {
+        return apt.appointment_date || apt.date || apt.appointmentDate || apt.schedule_date;
+    }
+
+    // Function to get appointment time column
+    function getAppointmentTime(apt) {
+        return apt.appointment_time || apt.time || apt.appointmentTime || apt.schedule_time;
+    }
+
+    // Function to get patient ID column
+    function getPatientId(apt) {
+        return apt.patient_id || apt.patientId || apt.patientid;
+    }
+
+    // Function to get staff ID column
+    function getStaffId(apt) {
+        return apt.staff_id || apt.staffId || apt.doctor_id || apt.doctorId;
+    }
+
+    async function loadDashboard() {
+        console.log('🔄 Loading dashboard data...');
+        
+        const today = new Date().toISOString().split('T')[0];
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        const nextWeekStr = nextWeek.toISOString().split('T')[0];
+        
+        try {
+            // Fetch ALL appointments from appointment table
+            const { data: appointments, error: aptError } = await supabaseClient
+                .from('appointment')
+                .select('*');
+            
+            if (aptError) {
+                console.error('❌ Error fetching appointments:', aptError);
+                document.getElementById('appointmentsTable').innerHTML = `<tr><td colspan="4" class="empty-state">Error: ${aptError.message}</td></tr>`;
+                return;
+            }
+            
+            allAppointmentsData = appointments || [];
+            console.log(`✅ Fetched ${allAppointmentsData.length} appointments`);
+            
+            if (allAppointmentsData.length > 0) {
+                console.log('Sample appointment:', allAppointmentsData[0]);
+            }
+            
+            // Filter appointments based on date
+            const todayApps = allAppointmentsData.filter(apt => getAppointmentDate(apt) === today);
+            const weeklyApps = allAppointmentsData.filter(apt => {
+                const aptDate = getAppointmentDate(apt);
+                return aptDate >= today && aptDate <= nextWeekStr;
+            });
+            
+            // Get counts from staff and patient tables
+            const { data: allStaff } = await supabaseClient.from('staff').select('*');
+            const { data: allPatients } = await supabaseClient.from('patient').select('*');
+            
+            const doctorCount = allStaff?.filter(s => s.position === 'Doctor' || s.position === 'Senior Doctor').length || 0;
+            const patientCount = allPatients?.length || 0;
+            
+            // Update stats
+            document.getElementById('todayCount').textContent = todayApps.length;
+            document.getElementById('weeklyCount').textContent = weeklyApps.length;
+            document.getElementById('patientCount').textContent = patientCount;
+            document.getElementById('doctorCount').textContent = doctorCount;
+            
+            // Create maps for quick lookup
+            const patientMap = {};
+            const staffMap = {};
+            allPatients?.forEach(p => { patientMap[p.patient_id] = `${p.first_name} ${p.last_name}`; });
+            allStaff?.forEach(s => { staffMap[s.staff_id] = `Dr. ${s.first_name} ${s.last_name}`; });
+            
+            // Render today's appointments
+            const tbody = document.getElementById('appointmentsTable');
+            if (todayApps.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No appointments scheduled for today</td></tr>';
+            } else {
+                tbody.innerHTML = '';
+                for (const apt of todayApps) {
+                    const patientId = getPatientId(apt);
+                    const staffId = getStaffId(apt);
+                    const patientName = patientMap[patientId] || `Patient ID: ${patientId}`;
+                    const doctorName = staffMap[staffId] || `Staff ID: ${staffId}`;
+                    const aptTime = getAppointmentTime(apt) || '--:--';
+                    const aptStatus = apt.status || 'Scheduled';
+                    
+                    let statusClass = '';
+                    switch(aptStatus) {
+                        case 'Scheduled': statusClass = 'status-scheduled'; break;
+                        case 'Confirmed': statusClass = 'status-confirmed'; break;
+                        case 'Completed': statusClass = 'status-completed'; break;
+                        default: statusClass = 'status-scheduled';
+                    }
+                    
+                    const row = tbody.insertRow();
+                    row.insertCell(0).innerHTML = aptTime;
+                    row.insertCell(1).innerHTML = `<strong>${patientName}</strong>`;
+                    row.insertCell(2).innerHTML = doctorName;
+                    row.insertCell(3).innerHTML = `<span class="status-badge ${statusClass}">${aptStatus}</span>`;
+                }
+            }
+            
+            // Load charts
+            await loadCharts(allAppointmentsData, patientMap, staffMap);
+            
+            console.log('✅ Dashboard loaded successfully');
+            
+        } catch (error) {
+            console.error('❌ Dashboard error:', error);
+            document.getElementById('appointmentsTable').innerHTML = `<tr><td colspan="4" class="empty-state">Error: ${error.message}</td></tr>`;
+        }
+    }
+
+    async function loadCharts(appointments, patientMap, staffMap) {
+        if (!appointments || appointments.length === 0) {
+            console.log('No appointments for charts');
+            if (weeklyChart) weeklyChart.destroy();
+            if (statusChart) statusChart.destroy();
+            return;
+        }
+        
+        // Weekly chart - appointments by day of week
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const counts = [0, 0, 0, 0, 0, 0, 0];
+        
+        for (const apt of appointments) {
+            const aptDate = getAppointmentDate(apt);
+            if (aptDate) {
+                const date = new Date(aptDate);
+                if (!isNaN(date.getTime())) {
+                    const dayIndex = date.getDay();
+                    if (dayIndex >= 0 && dayIndex < 7) {
+                        counts[dayIndex]++;
+                    }
+                }
+            }
+        }
+        
+        const weeklyCtx = document.getElementById('weeklyChart')?.getContext('2d');
+        if (weeklyCtx) {
+            if (weeklyChart) weeklyChart.destroy();
+            weeklyChart = new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: 'Number of Appointments',
+                        data: counts,
+                        backgroundColor: '#287b9e',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+        
+        // Status pie chart
+        const statusCounts = { Scheduled: 0, Confirmed: 0, Completed: 0, Cancelled: 0 };
+        for (const apt of appointments) {
+            const aptStatus = apt.status || 'Scheduled';
+            if (statusCounts[aptStatus] !== undefined) {
+                statusCounts[aptStatus]++;
+            }
+        }
+        
+        const statusCtx = document.getElementById('statusChart')?.getContext('2d');
+        if (statusCtx) {
+            if (statusChart) statusChart.destroy();
+            statusChart = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Scheduled', 'Confirmed', 'Completed', 'Cancelled'],
+                    datasets: [{
+                        data: [statusCounts.Scheduled, statusCounts.Confirmed, statusCounts.Completed, statusCounts.Cancelled],
+                        backgroundColor: ['#fef3c7', '#dbeafe', '#dcfce7', '#fee2e2'],
+                        borderColor: ['#d97706', '#2563eb', '#15803d', '#b91c1c'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+    }
+
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const toggleBtn = document.getElementById('toggleSidebar');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('closed');
+            mainContent.classList.toggle('expanded');
+            const icon = toggleBtn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-chevron-left');
+                icon.classList.toggle('fa-chevron-right');
+            }
+        });
+    }
+
+    // Logout
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
+        });
+    }
+
+    // Auth check
+    async function checkAuth() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+            window.location.href = 'login.html';
+            return;
+        }
+        const { data: staff } = await supabaseClient
+            .from('staff')
+            .select('first_name, last_name, position')
+            .eq('email', session.user.email)
+            .single();
+        if (staff) {
+            const adminNameSpan = document.getElementById('adminName');
+            const adminRoleSpan = document.getElementById('adminRole');
+            if (adminNameSpan) adminNameSpan.textContent = `${staff.first_name} ${staff.last_name}`;
+            if (adminRoleSpan) adminRoleSpan.textContent = staff.position;
+        }
+    }
+
+    // Run on load
+    checkAuth();
+    loadDashboard();
+    
+    // Auto refresh every 30 seconds
+    setInterval(loadDashboard, 30000);
+</script>
+</body>
+</html>

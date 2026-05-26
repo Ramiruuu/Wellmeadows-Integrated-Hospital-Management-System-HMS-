@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - Wellmeadows</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            min-height: 100vh;
+        }
+        .top-bar {
+            background: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .logo { font-weight: 700; color: #0f2b3d; font-size: 1.2rem; }
+        .container {
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 0 24px;
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .card h2 { color: #0f2b3d; margin-bottom: 8px; }
+        .doctor-info { color: #287b9e; margin-bottom: 24px; font-size: 0.9rem; }
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #475569;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+        }
+        input:focus, select:focus { outline: none; border-color: #287b9e; }
+        .btn-book {
+            width: 100%;
+            background: #287b9e;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-book:hover { background: #1a5f7a; }
+        .message {
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success { background: #dcfce7; color: #15803d; display: block; }
+        .message.error { background: #fee2e2; color: #b91c1c; display: block; }
+        .back-link {
+            display: block;
+            margin-top: 16px;
+            text-align: center;
+            color: #64748b;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo">Wellmeadows</div>
+        <a href="index.html" style="color: #287b9e; text-decoration: none;">← Back</a>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Book an Appointment</h2>
+            <div class="doctor-info" id="doctorInfo">Loading doctor information...</div>
+            <div id="message" class="message"></div>
+            
+            <form id="appointmentForm">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="patientName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="patientEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="patientPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Appointment Date</label>
+                    <input type="date" id="appointmentDate" required min="<?php echo date('Y-m-d'); ?>">
+                </div>
+                <div class="form-group">
+                    <label>Appointment Time</label>
+                    <select id="appointmentTime" required>
+                        <option value="09:00">9:00 AM</option>
+                        <option value="10:00">10:00 AM</option>
+                        <option value="11:00">11:00 AM</option>
+                        <option value="13:00">1:00 PM</option>
+                        <option value="14:00">2:00 PM</option>
+                        <option value="15:00">3:00 PM</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Reason for Visit</label>
+                    <textarea id="reason" rows="3" placeholder="Briefly describe your symptoms or reason for visit"></textarea>
+                </div>
+                <button type="submit" class="btn-book">Confirm Appointment</button>
+            </form>
+            <a href="index.html" class="back-link">← Browse more doctors</a>
+        </div>
+    </div>
+
+    <script src="../shared/supabase-config.js"></script>
+    <script type="module">
+        import { auth, onAuthStateChanged } from './assets/js/firebase-config.js';
+        
+        const SUPABASE_URL = 'https://cqetejeaeasqkafdgjri.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_75JVFc0QWySSyAPQVO-C1g_Udqt9tgQ';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const doctorId = urlParams.get('doctor');
+        const doctorName = urlParams.get('name') || 'our doctor';
+        
+        document.getElementById('doctorInfo').innerHTML = `Selected Doctor: <strong>Dr. ${doctorName}</strong>`;
+
+        async function sendEmailConfirmation(to, name, details) {
+            try {
+                // For demo, we'll simulate email sending
+                // In production, you would call a Supabase Edge Function
+                console.log(`Email would be sent to: ${to}`);
+                console.log(`Subject: Appointment Confirmation - Wellmeadows Hospital`);
+                console.log(`Body: Dear ${name}, your appointment with Dr. ${details.doctorName} on ${details.date} at ${details.time} is confirmed.`);
+                
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return true;
+            } catch (error) {
+                console.error('Email error:', error);
+                return false;
+            }
+        }
+
+        document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = 'message';
+            messageDiv.textContent = 'Processing your appointment...';
+            
+            try {
+                const patientName = document.getElementById('patientName').value;
+                const patientEmail = document.getElementById('patientEmail').value;
+                const patientPhone = document.getElementById('patientPhone').value;
+                const appointmentDate = document.getElementById('appointmentDate').value;
+                const appointmentTime = document.getElementById('appointmentTime').value;
+                const reason = document.getElementById('reason').value;
+                
+                // Check if patient exists, if not create
+                let { data: patient } = await supabase
+                    .from('patient')
+                    .select('*')
+                    .eq('email', patientEmail)
+                    .single();
+                
+                if (!patient) {
+                    const nameParts = patientName.split(' ');
+                    const { data: newPatient } = await supabase
+                        .from('patient')
+                        .insert([{
+                            first_name: nameParts[0],
+                            last_name: nameParts.slice(1).join(' ') || 'Patient',
+                            email: patientEmail,
+                            phone: patientPhone,
+                            date_registered: new Date().toISOString().split('T')[0]
+                        }])
+                        .select();
+                    patient = newPatient[0];
+                }
+                
+                // Create appointment
+                const { data: appointment, error } = await supabase
+                    .from('appointment')
+                    .insert([{
+                        patient_id: patient.patient_id,
+                        staff_id: parseInt(doctorId),
+                        appointment_date: appointmentDate,
+                        appointment_time: appointmentTime,
+                        reason: reason,
+                        status: 'Scheduled'
+                    }])
+                    .select();
+                
+                if (error) throw error;
+                
+                // Send email confirmation
+                const emailSent = await sendEmailConfirmation(patientEmail, patientName, {
+                    doctorName: doctorName,
+                    date: appointmentDate,
+                    time: appointmentTime,
+                    reason: reason
+                });
+                
+                messageDiv.className = 'message success';
+                messageDiv.innerHTML = `✅ Appointment confirmed! ${emailSent ? 'A confirmation email has been sent to your email address.' : ''}<br>Redirecting to your appointments...`;
+                
+                setTimeout(() => {
+                    window.location.href = 'my-appointments.html';
+                }, 3000);
+                
+            } catch (error) {
+                messageDiv.className = 'message error';
+                messageDiv.textContent = 'Error: ' + error.message;
+            }
+        });
+        
+        // Auto-fill if user is logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('patientEmail').value = user.email || '';
+                // You could also fetch patient name from Supabase here
+            }
+        });
+    </script>
+</body>
+</html>
