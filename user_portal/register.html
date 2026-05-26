@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Registration - Wellmeadows</title>
+    <title>Create Account | Wellmeadows</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -24,6 +22,7 @@
             width: 100%;
             max-width: 520px;
             overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         }
         .register-header {
             background: #0f2b3d;
@@ -31,21 +30,41 @@
             text-align: center;
         }
         .register-header h1 { color: white; font-size: 1.6rem; margin-bottom: 8px; }
+        .register-header p { color: #94a3b8; font-size: 0.85rem; }
         .register-body { padding: 36px; }
-        .form-group { margin-bottom: 20px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        label { display: block; font-weight: 600; font-size: 0.7rem; color: #475569; margin-bottom: 8px; text-transform: uppercase; }
+        .form-group { margin-bottom: 24px; }
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.7rem;
+            color: #475569;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
         .input-wrapper { position: relative; }
-        .input-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+        }
         input {
             width: 100%;
             padding: 14px 16px 14px 46px;
             border: 1.5px solid #e2e8f0;
             border-radius: 14px;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            transition: all 0.2s;
         }
         input:focus { outline: none; border-color: #287b9e; }
-        .btn-register {
+        .name-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .btn-primary {
             width: 100%;
             background: #287b9e;
             color: white;
@@ -53,26 +72,162 @@
             padding: 14px;
             border-radius: 40px;
             font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
+            margin-bottom: 12px;
         }
-        .login-link { text-align: center; margin-top: 24px; font-size: 0.85rem; }
+        .btn-primary:hover { background: #1a5f7a; }
+        .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+        .btn-phone {
+            width: 100%;
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+        .btn-phone:hover { background: #047857; }
+        .google-btn {
+            width: 100%;
+            background: white;
+            color: #333;
+            border: 1.5px solid #e2e8f0;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .google-btn:hover { background: #f8fafc; border-color: #287b9e; }
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
         .login-link a { color: #287b9e; text-decoration: none; }
-        .alert { padding: 14px; border-radius: 14px; margin-bottom: 24px; }
+        .alert {
+            padding: 14px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         .alert-error { background: #fee2e2; color: #b91c1c; }
         .alert-success { background: #dcfce7; color: #15803d; }
         .hidden { display: none; }
+
+        /* Phone Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            max-width: 400px;
+            width: 90%;
+            padding: 32px;
+            text-align: center;
+            position: relative;
+        }
+        .modal-content h3 { font-size: 1.3rem; margin-bottom: 8px; color: #0f2b3d; }
+        .modal-content p { color: #64748b; font-size: 0.85rem; margin-bottom: 24px; }
+        .modal-input-wrapper { position: relative; margin-bottom: 16px; }
+        .modal-input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 14px 16px 14px 46px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 0.95rem;
+        }
+        .modal-btn {
+            background: #287b9e;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .modal-btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            margin-top: 12px;
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+        .close-modal:hover { color: #dc2626; }
+        .recaptcha-container { margin: 16px 0; }
+        .otp-section { margin-top: 16px; display: none; }
+        .phone-hint { font-size: 0.7rem; color: #64748b; margin-top: -8px; margin-bottom: 16px; text-align: left; }
+
+        @media (max-width: 520px) {
+            .register-body { padding: 28px 24px; }
+            .name-row { grid-template-columns: 1fr; gap: 0; }
+        }
     </style>
 </head>
 <body>
     <div class="register-container">
         <div class="register-header">
             <h1>Create Account</h1>
-            <p>Register to book appointments online</p>
+            <p>Join Wellmeadows Health</p>
         </div>
         <div class="register-body">
             <div id="alertMessage" class="alert hidden"></div>
+
+            <!-- Email Registration -->
             <form id="registerForm">
-                <div class="form-row">
+                <div class="name-row">
                     <div class="form-group">
                         <label>First Name</label>
                         <div class="input-wrapper"><i class="fas fa-user"></i><input type="text" id="firstName" required></div>
@@ -83,102 +238,226 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Email</label>
+                    <label>Email Address</label>
                     <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" id="email" required></div>
                 </div>
                 <div class="form-group">
-                    <label>Phone</label>
-                    <div class="input-wrapper"><i class="fas fa-phone"></i><input type="tel" id="phone" required></div>
+                    <label>Password</label>
+                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="password" required></div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Password</label>
-                        <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="password" required></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Confirm</label>
-                        <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="confirmPassword" required></div>
-                    </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="confirmPassword" required></div>
                 </div>
-                <button type="submit" class="btn-register">Create Account</button>
+                <button type="submit" class="btn-primary" id="registerBtn">Create Account</button>
             </form>
-            <div class="login-link">Already have an account? <a href="login.html">Sign In</a></div>
+
+            <div class="divider">OR</div>
+
+            <button class="btn-phone" id="phoneSignupBtn">Sign up with Phone</button>
+
+            <div class="divider">OR</div>
+
+            <button id="googleSignUpBtn" class="google-btn">Sign up with Google</button>
+
+            <div class="login-link">
+                Already have an account? <a href="login.html">Sign In</a>
+            </div>
         </div>
     </div>
-    
+
+    <!-- Phone Modal -->
+    <div id="phoneModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePhoneModal()">&times;</span>
+            <h3>Sign up with Phone</h3>
+            <p>Enter your phone number and create a password</p>
+            <div class="modal-input-wrapper">
+                <i class="fas fa-phone-alt"></i>
+                <input type="tel" id="phoneNumber" class="modal-input" placeholder="9123456789">
+            </div>
+            <div class="phone-hint">Enter your number without +63. We'll add it automatically.</div>
+            <div class="modal-input-wrapper">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="phonePassword" class="modal-input" placeholder="Create a password (min 6 characters)">
+            </div>
+            <div id="recaptcha-container" class="recaptcha-container"></div>
+            <div id="otpSection" class="otp-section">
+                <div class="modal-input-wrapper">
+                    <i class="fas fa-key"></i>
+                    <input type="text" id="otpCode" class="modal-input" placeholder="Enter 6-digit code" maxlength="6">
+                </div>
+                <button class="modal-btn" id="verifyOtpBtn">Verify & Create Account</button>
+            </div>
+            <button class="modal-btn" id="sendCodeBtn">Send verification code</button>
+            <button class="modal-btn modal-btn-secondary" onclick="closePhoneModal()">Cancel</button>
+        </div>
+    </div>
+
     <script type="module">
-        import { auth, createUserWithEmailAndPassword } from './assets/js/firebase-config.js';
-        
-        const SUPABASE_URL = 'https://cqetejeaeasqkafdgjri.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_75JVFc0QWySSyAPQVO-C1g_Udqt9tgQ';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
+        import { 
+            auth, 
+            createUserWithEmailAndPassword, 
+            sendEmailVerification,
+            RecaptchaVerifier,
+            signInWithPhoneNumber,
+            GoogleAuthProvider,
+            signInWithPopup,
+            signOut
+        } from './assets/js/firebase-config.js';
+
+        const googleProvider = new GoogleAuthProvider();
+
         const form = document.getElementById('registerForm');
         const alertDiv = document.getElementById('alertMessage');
-        
+        const firstName = document.getElementById('firstName');
+        const lastName = document.getElementById('lastName');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const registerBtn = document.getElementById('registerBtn');
+        const googleSignUpBtn = document.getElementById('googleSignUpBtn');
+        const phoneSignupBtn = document.getElementById('phoneSignupBtn');
+
+        const phoneModal = document.getElementById('phoneModal');
+        const phoneNumber = document.getElementById('phoneNumber');
+        const phonePassword = document.getElementById('phonePassword');
+        const otpCode = document.getElementById('otpCode');
+        const otpSection = document.getElementById('otpSection');
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+
+        let confirmationResult = null;
+        let recaptchaVerifier = null;
+        let pendingPhoneData = null;
+
+        function formatPhoneNumber(input) {
+            let digits = input.value.replace(/\D/g, '');
+            if (digits.startsWith('0')) digits = digits.substring(1);
+            if (digits.length > 10) digits = digits.substring(0, 10);
+            input.value = digits;
+        }
+
+        function getFullPhoneNumber(rawNumber) {
+            let digits = rawNumber.replace(/\D/g, '');
+            if (digits.startsWith('0')) digits = digits.substring(1);
+            return `+63${digits}`;
+        }
+
+        phoneNumber.addEventListener('input', function() { formatPhoneNumber(this); });
+
         function showAlert(message, type) {
             alertDiv.className = `alert alert-${type}`;
-            alertDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
+            alertDiv.innerHTML = message;
             alertDiv.classList.remove('hidden');
             setTimeout(() => alertDiv.classList.add('hidden'), 5000);
         }
-        
+
+        function closePhoneModal() {
+            phoneModal.style.display = 'none';
+            phoneNumber.value = '';
+            phonePassword.value = '';
+            otpCode.value = '';
+            otpSection.style.display = 'none';
+            sendCodeBtn.style.display = 'block';
+            verifyOtpBtn.style.display = 'none';
+            if (recaptchaVerifier) { try { recaptchaVerifier.clear(); } catch(e) {} recaptchaVerifier = null; }
+        }
+
+        function openPhoneModal() { phoneModal.style.display = 'flex'; }
+
+        function setupRecaptcha() {
+            if (recaptchaVerifier) { try { recaptchaVerifier.clear(); } catch(e) {} }
+            recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 'size': 'invisible' });
+            return recaptchaVerifier;
+        }
+
+        // Email Registration
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (password !== confirmPassword) {
-                showAlert('Passwords do not match', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showAlert('Password must be at least 6 characters', 'error');
-                return;
-            }
-            
-            showAlert('Creating account...', 'success');
-            
+            const first = firstName.value.trim();
+            const last = lastName.value.trim();
+            const emailValue = email.value.trim();
+            const pass = password.value;
+            const confirm = confirmPassword.value;
+
+            if (!first || !last) { showAlert('Please enter your full name', 'error'); return; }
+            if (!emailValue) { showAlert('Please enter your email address', 'error'); return; }
+            if (pass !== confirm) { showAlert('Passwords do not match', 'error'); return; }
+            if (pass.length < 6) { showAlert('Password must be at least 6 characters', 'error'); return; }
+
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Creating...';
+
             try {
-                // Create Firebase user
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const firebaseUser = userCredential.user;
-                console.log('Firebase user created:', firebaseUser.uid);
-                
-                // Create patient record in Supabase
-                const { error: supabaseError } = await supabase
-                    .from('patient')
-                    .insert([{
-                        first_name: firstName,
-                        last_name: lastName,
-                        email: email,
-                        phone: phone,
-                        firebase_uid: firebaseUser.uid,
-                        date_registered: new Date().toISOString().split('T')[0]
-                    }]);
-                
-                if (supabaseError) throw supabaseError;
-                
-                showAlert('Registration successful! Redirecting to login...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
-                
+                const userCred = await createUserWithEmailAndPassword(auth, emailValue, pass);
+                await sendEmailVerification(userCred.user);
+                await signOut(auth);
+                showAlert('Account created! Please check your email for verification link.', 'success');
+                form.reset();
             } catch (error) {
-                console.error('Registration error:', error);
-                let message = error.message;
-                if (error.code === 'auth/email-already-in-use') {
-                    message = 'Email already registered. Please login instead.';
-                }
-                showAlert(message, 'error');
+                let errorMsg = error.message;
+                if (error.code === 'auth/email-already-in-use') errorMsg = 'Email already registered. Please login instead.';
+                showAlert(errorMsg, 'error');
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Create Account';
             }
         });
+
+        // Google Sign Up
+        googleSignUpBtn.addEventListener('click', async () => {
+            googleSignUpBtn.disabled = true;
+            googleSignUpBtn.textContent = 'Signing up...';
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                showAlert('Google account created! Redirecting to login...', 'success');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+            } catch (error) { showAlert(error.message, 'error'); googleSignUpBtn.disabled = false; googleSignUpBtn.textContent = 'Sign up with Google'; }
+        });
+
+        // Phone Sign Up
+        phoneSignupBtn.addEventListener('click', openPhoneModal);
+
+        sendCodeBtn.addEventListener('click', async () => {
+            const rawPhone = phoneNumber.value.trim();
+            const pass = phonePassword.value;
+            if (!rawPhone) { alert('Please enter your phone number'); return; }
+            const digitsOnly = rawPhone.replace(/\D/g, '');
+            if (digitsOnly.length !== 10) { alert('Please enter a valid 10-digit Philippine number (e.g., 9123456789)'); return; }
+            if (!pass || pass.length < 6) { alert('Password must be at least 6 characters'); return; }
+
+            pendingPhoneData = { rawPhone, fullPhone: getFullPhoneNumber(rawPhone), pass };
+            sendCodeBtn.disabled = true;
+            sendCodeBtn.textContent = 'Sending...';
+
+            try {
+                const verifier = setupRecaptcha();
+                const result = await signInWithPhoneNumber(auth, pendingPhoneData.fullPhone, verifier);
+                confirmationResult = result;
+                otpSection.style.display = 'block';
+                sendCodeBtn.style.display = 'none';
+                verifyOtpBtn.style.display = 'block';
+                alert('Verification code sent!');
+            } catch (error) { alert(error.message); sendCodeBtn.disabled = false; sendCodeBtn.textContent = 'Send verification code'; }
+        });
+
+        verifyOtpBtn.addEventListener('click', async () => {
+            const code = otpCode.value.trim();
+            if (!code) { alert('Please enter verification code'); return; }
+            verifyOtpBtn.disabled = true;
+            verifyOtpBtn.textContent = 'Verifying...';
+            try {
+                await confirmationResult.confirm(code);
+                const emailPlaceholder = `user_${Date.now()}@phone.wellmeadows.com`;
+                await createUserWithEmailAndPassword(auth, emailPlaceholder, pendingPhoneData.pass);
+                alert('Account created successfully! You can now login.');
+                closePhoneModal();
+                setTimeout(() => window.location.href = 'login.html', 2000);
+            } catch (error) { alert('Verification failed: ' + error.message); verifyOtpBtn.disabled = false; verifyOtpBtn.textContent = 'Verify & create account'; }
+        });
+
+        window.onclick = function(event) { if (event.target === phoneModal) closePhoneModal(); };
     </script>
 </body>
 </html>

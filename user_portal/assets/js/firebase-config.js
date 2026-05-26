@@ -1,6 +1,4 @@
-// ============================================
-// FIREBASE CONFIGURATION - WORKING VERSION
-// ============================================
+// assets/js/firebase-config.js
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { 
@@ -9,10 +7,27 @@ import {
     createUserWithEmailAndPassword, 
     signOut, 
     onAuthStateChanged,
-    sendPasswordResetEmail,
+    sendEmailVerification,
+    RecaptchaVerifier,
+    signInWithPhoneNumber,
     GoogleAuthProvider,
     signInWithPopup
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    getDocs, 
+    doc, 
+    updateDoc, 
+    deleteDoc, 
+    query, 
+    where, 
+    orderBy,
+    getDoc,
+    setDoc,
+    Timestamp
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAQS17Nd6pD2C8CcNDyhi2T10_WY-CGQKA",
@@ -25,15 +40,41 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
+
+// For test phone numbers - this allows testing without actual SMS
+auth.settings.appVerificationDisabledForTesting = true;
+
+// Collection references
+const patientsCollection = collection(db, 'patients');
+const appointmentsCollection = collection(db, 'appointments');
 
 export { 
     auth, 
+    db,
+    patientsCollection,
+    appointmentsCollection,
     signInWithEmailAndPassword, 
     createUserWithEmailAndPassword, 
     signOut, 
     onAuthStateChanged,
-    sendPasswordResetEmail,
+    sendEmailVerification,
+    RecaptchaVerifier,
+    signInWithPhoneNumber,
+    GoogleAuthProvider,
     googleProvider,
-    signInWithPopup
+    signInWithPopup,
+    collection, 
+    addDoc, 
+    getDocs, 
+    doc, 
+    updateDoc, 
+    deleteDoc, 
+    query, 
+    where, 
+    orderBy,
+    getDoc,
+    setDoc,
+    Timestamp
 };

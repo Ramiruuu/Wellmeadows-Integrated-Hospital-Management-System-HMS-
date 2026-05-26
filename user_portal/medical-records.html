@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Appointments - Wellmeadows</title>
+    <title>Medical Records - Wellmeadows</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -54,21 +54,11 @@
         .top-header { margin-bottom: 32px; }
         .top-header h1 { font-size: 1.8rem; font-weight: 700; color: #0f2b3d; margin-bottom: 8px; }
 
-        .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid #e2e8f0; }
-        .tab { padding: 12px 24px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 500; }
-        .tab.active { color: #287b9e; border-bottom-color: #287b9e; }
-
         .card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; }
         .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #eef2f8; font-size: 0.85rem; }
         th { background: #f8fafc; font-weight: 600; color: #0f2b3d; }
-        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
-        .status-confirmed { background: #dcfce7; color: #15803d; }
-        .status-scheduled { background: #fef3c7; color: #d97706; }
-        .status-completed { background: #dbeafe; color: #2563eb; }
-        .status-cancelled { background: #fee2e2; color: #b91c1c; }
-        .btn-cancel { background: #dc2626; color: white; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; }
         .empty-state { text-align: center; padding: 48px; color: #94a3b8; }
 
         @media (max-width: 768px) {
@@ -77,7 +67,6 @@
             .sidebar .nav-item { justify-content: center; padding: 12px; }
             .sidebar .nav-item span { display: none; }
             .main-content { margin-left: 80px; padding: 20px; }
-            th, td { padding: 10px 12px; }
         }
     </style>
 </head>
@@ -92,9 +81,9 @@
     <nav class="sidebar-nav">
         <a href="index.html" class="nav-item"><span>Dashboard</span></a>
         <a href="book-appointment.html" class="nav-item"><span>Book Appointment</span></a>
-        <a href="my-appointments.html" class="nav-item active"><span>My Appointments</span></a>
+        <a href="my-appointments.html" class="nav-item"><span>My Appointments</span></a>
         <a href="doctors.html" class="nav-item"><span>Our Doctors</span></a>
-        <a href="medical-records.html" class="nav-item"><span>Medical Records</span></a>
+        <a href="medical-records.html" class="nav-item active"><span>Medical Records</span></a>
         <a href="payment.html" class="nav-item"><span>Payments</span></a>
     </nav>
     <div class="sidebar-footer">
@@ -104,17 +93,17 @@
 </aside>
 
 <main class="main-content" id="mainContent">
-    <div class="top-header"><h1>My Appointments</h1></div>
-    <div class="tabs"><div class="tab active" data-tab="upcoming">Upcoming</div><div class="tab" data-tab="past">Past</div></div>
-    <div class="card"><div class="table-wrapper"><table><thead><tr><th>Date</th><th>Time</th><th>Doctor</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody id="appointmentsTable"></tbody></table></div></div>
+    <div class="top-header"><h1>Medical Records</h1><p>Your complete treatment history</p></div>
+    <div class="card">
+        <div class="table-wrapper"><table><thead><tr><th>Date</th><th>Doctor</th><th>Diagnosis</th><th>Treatment</th><th>Medications</th><th>Follow-up</th></tr></thead><tbody id="recordsTable"></tbody></table></div>
+    </div>
 </main>
 
 <script type="module">
-    import { auth, db, onAuthStateChanged, signOut, collection, query, where, getDocs, updateDoc, doc, orderBy } from './assets/js/firebase-config.js';
+    import { auth, db, onAuthStateChanged, signOut, collection, query, where, getDocs, orderBy } from './assets/js/firebase-config.js';
 
     let currentUser = null;
     let patientId = null;
-    let currentTab = 'upcoming';
 
     async function getPatientId(user) {
         const q = query(collection(db, 'patients'), where("email", "==", user.email));
@@ -122,51 +111,24 @@
         return snapshot.empty ? null : snapshot.docs[0].id;
     }
 
-    async function loadAppointments() {
+    async function loadRecords() {
         if (!patientId) return;
-        const q = query(collection(db, 'appointments'), where("patientId", "==", patientId), orderBy("appointmentDate", "asc"));
+        const q = query(collection(db, 'treatments'), where("patientId", "==", patientId), orderBy("treatmentDate", "desc"));
         const snapshot = await getDocs(q);
-        let appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const today = new Date().toISOString().split('T')[0];
-        let filtered = currentTab === 'upcoming' 
-            ? appointments.filter(a => a.appointmentDate >= today && a.status !== 'Cancelled')
-            : appointments.filter(a => a.appointmentDate < today || a.status === 'Cancelled');
-        renderTable(filtered);
+        const records = snapshot.docs.map(doc => doc.data());
+        const tbody = document.getElementById('recordsTable');
+        if (records.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No medical records found</td></tr>'; return; }
+        tbody.innerHTML = records.map(rec => `
+            <tr>
+                <td>${new Date(rec.treatmentDate).toLocaleDateString()}</td>
+                <td>${rec.doctorName || 'Doctor'}</td>
+                <td>${rec.diagnosis || '-'}</td>
+                <td>${rec.treatment || '-'}</td>
+                <td>${rec.medications || '-'}</td>
+                <td>${rec.followUpDate ? new Date(rec.followUpDate).toLocaleDateString() : '-'}</td>
+            </tr>
+        `).join('');
     }
-
-    async function cancelAppointment(id) {
-        if (confirm('Cancel this appointment?')) {
-            await updateDoc(doc(db, 'appointments', id), { status: 'Cancelled' });
-            await loadAppointments();
-        }
-    }
-
-    function renderTable(appointments) {
-        const tbody = document.getElementById('appointmentsTable');
-        if (appointments.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No appointments found</td></tr>'; return; }
-        tbody.innerHTML = appointments.map(apt => {
-            let statusClass = { Scheduled: 'status-scheduled', Confirmed: 'status-confirmed', Completed: 'status-completed', Cancelled: 'status-cancelled' }[apt.status] || 'status-scheduled';
-            return `<tr>
-                <td>${new Date(apt.appointmentDate).toLocaleDateString()}</td>
-                <td>${apt.appointmentTime}</td>
-                <td><strong>${apt.doctorName || 'Doctor'}</strong><br><small style="color:#64748b;">${apt.doctorSpecialty || ''}</small></td>
-                <td>${apt.reason || 'Consultation'}</td>
-                <td><span class="status-badge ${statusClass}">${apt.status || 'Scheduled'}</span></td>
-                <td>${apt.status !== 'Cancelled' && apt.status !== 'Completed' ? `<button class="btn-cancel" onclick="cancelAppointment('${apt.id}')">Cancel</button>` : '-'}</td>
-            </tr>`;
-        }).join('');
-    }
-
-    window.cancelAppointment = cancelAppointment;
-
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            currentTab = tab.dataset.tab;
-            loadAppointments();
-        });
-    });
 
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
@@ -181,7 +143,7 @@
         if (!user) { window.location.href = 'login.html'; return; }
         currentUser = user;
         patientId = await getPatientId(user);
-        await loadAppointments();
+        await loadRecords();
     });
 </script>
 </body>

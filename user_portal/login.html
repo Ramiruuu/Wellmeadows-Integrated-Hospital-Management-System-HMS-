@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Login - Wellmeadows</title>
+    <title>Sign In | Wellmeadows</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -34,9 +34,23 @@
         .login-header p { color: #94a3b8; font-size: 0.85rem; }
         .login-body { padding: 36px; }
         .form-group { margin-bottom: 24px; }
-        label { display: block; font-weight: 600; font-size: 0.7rem; color: #475569; margin-bottom: 8px; text-transform: uppercase; }
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.7rem;
+            color: #475569;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
         .input-wrapper { position: relative; }
-        .input-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
         input {
             width: 100%;
             padding: 14px 16px 14px 46px;
@@ -61,6 +75,22 @@
             margin-bottom: 12px;
         }
         .btn-login:hover { background: #1a5f7a; }
+        .phone-login-btn {
+            width: 100%;
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .phone-login-btn:hover { background: #047857; }
         .google-btn {
             width: 100%;
             background: white;
@@ -76,26 +106,121 @@
             gap: 10px;
         }
         .google-btn:hover { background: #f8fafc; border-color: #287b9e; }
-        .divider { text-align: center; margin: 20px 0; position: relative; color: #94a3b8; font-size: 0.8rem; }
-        .divider::before, .divider::after { content: ''; position: absolute; top: 50%; width: 45%; height: 1px; background: #e2e8f0; }
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #e2e8f0;
+        }
         .divider::before { left: 0; }
         .divider::after { right: 0; }
-        .register-link { text-align: center; margin-top: 24px; font-size: 0.85rem; color: #64748b; }
+        .register-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
         .register-link a { color: #287b9e; text-decoration: none; }
-        .alert { padding: 14px; border-radius: 14px; margin-bottom: 24px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; }
+        .alert {
+            padding: 14px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         .alert-error { background: #fee2e2; color: #b91c1c; }
         .alert-success { background: #dcfce7; color: #15803d; }
         .hidden { display: none; }
+
+        /* Phone Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            max-width: 400px;
+            width: 90%;
+            padding: 32px;
+            text-align: center;
+            position: relative;
+        }
+        .modal-content h3 { font-size: 1.3rem; margin-bottom: 8px; color: #0f2b3d; }
+        .modal-content p { color: #64748b; font-size: 0.85rem; margin-bottom: 24px; }
+        .modal-input-wrapper { position: relative; margin-bottom: 16px; }
+        .modal-input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 14px 16px 14px 46px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 0.9rem;
+        }
+        .modal-btn {
+            background: #287b9e;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .modal-btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            margin-top: 12px;
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+        .close-modal:hover { color: #dc2626; }
+        .recaptcha-container { margin: 16px 0; }
+        .otp-section { margin-top: 16px; display: none; }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>Patient Portal</h1>
-            <p>Book and manage your appointments</p>
+            <h1>Welcome Back</h1>
+            <p>Sign in to your account</p>
         </div>
         <div class="login-body">
             <div id="alertMessage" class="alert hidden"></div>
+
+            <!-- Email Login Form -->
             <form id="loginForm">
                 <div class="form-group">
                     <label>Email Address</label>
@@ -107,74 +232,226 @@
                 </div>
                 <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Sign In</button>
             </form>
+
             <div class="divider">OR</div>
+
+            <!-- Phone Login Button -->
+            <button class="phone-login-btn" id="phoneLoginBtn"><i class="fas fa-phone-alt"></i> Sign in with Phone</button>
+
+            <div class="divider">OR</div>
+
+            <!-- Google Sign In Button -->
             <button id="googleSignInBtn" class="google-btn"><i class="fab fa-google"></i> Sign in with Google</button>
-            <div class="register-link">Don't have an account? <a href="register.html">Register Here</a></div>
+
+            <div class="register-link">
+                Don't have an account? <a href="register.html">Create Account</a>
+            </div>
         </div>
     </div>
-    
+
+    <!-- Phone Login Modal -->
+    <div id="phoneModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePhoneModal()">&times;</span>
+            <h3>Sign in with Phone</h3>
+            <p>Enter your phone number to receive a verification code</p>
+            <div class="modal-input-wrapper">
+                <i class="fas fa-phone-alt"></i>
+                <input type="tel" id="loginPhoneNumber" class="modal-input" placeholder="+63 912 345 6789">
+            </div>
+            <div id="loginRecaptcha" class="recaptcha-container"></div>
+            <div id="loginOtpSection" class="otp-section">
+                <div class="modal-input-wrapper">
+                    <i class="fas fa-key"></i>
+                    <input type="text" id="loginOtpCode" class="modal-input" placeholder="Enter 6-digit code" maxlength="6">
+                </div>
+                <button class="modal-btn" id="loginVerifyOtpBtn">Verify & Sign In</button>
+            </div>
+            <button class="modal-btn" id="loginSendCodeBtn">Send verification code</button>
+            <button class="modal-btn modal-btn-secondary" onclick="closePhoneModal()">Cancel</button>
+        </div>
+    </div>
+
     <script type="module">
-        import { auth, signInWithEmailAndPassword, onAuthStateChanged, googleProvider, signInWithPopup } from './assets/js/firebase-config.js';
-        
+        import { 
+            auth, 
+            signInWithEmailAndPassword, 
+            onAuthStateChanged,
+            RecaptchaVerifier,
+            signInWithPhoneNumber,
+            GoogleAuthProvider,
+            signInWithPopup
+        } from './assets/js/firebase-config.js';
+
+        // Create Google provider instance here
+        const googleProvider = new GoogleAuthProvider();
+
         const form = document.getElementById('loginForm');
         const alertDiv = document.getElementById('alertMessage');
-        
+        const googleSignInBtn = document.getElementById('googleSignInBtn');
+        const phoneLoginBtn = document.getElementById('phoneLoginBtn');
+
+        // Phone modal elements
+        const phoneModal = document.getElementById('phoneModal');
+        const loginPhoneNumber = document.getElementById('loginPhoneNumber');
+        const loginOtpSection = document.getElementById('loginOtpSection');
+        const loginSendCodeBtn = document.getElementById('loginSendCodeBtn');
+        const loginVerifyOtpBtn = document.getElementById('loginVerifyOtpBtn');
+        const loginOtpCode = document.getElementById('loginOtpCode');
+
+        let loginConfirmationResult = null;
+        let loginRecaptchaVerifier = null;
+
         function showAlert(message, type) {
             alertDiv.className = `alert alert-${type}`;
             alertDiv.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
             alertDiv.classList.remove('hidden');
             setTimeout(() => alertDiv.classList.add('hidden'), 5000);
         }
-        
+
+        function closePhoneModal() {
+            phoneModal.style.display = 'none';
+            loginPhoneNumber.value = '';
+            loginOtpCode.value = '';
+            loginOtpSection.style.display = 'none';
+            loginSendCodeBtn.style.display = 'block';
+            loginVerifyOtpBtn.style.display = 'none';
+            if (loginRecaptchaVerifier) {
+                try { loginRecaptchaVerifier.clear(); } catch(e) {}
+                loginRecaptchaVerifier = null;
+            }
+        }
+
+        function openPhoneModal() {
+            phoneModal.style.display = 'flex';
+        }
+
+        function setupRecaptcha(containerId) {
+            if (loginRecaptchaVerifier) {
+                try { loginRecaptchaVerifier.clear(); } catch(e) {}
+            }
+            loginRecaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+                'size': 'invisible'
+            });
+            return loginRecaptchaVerifier;
+        }
+
         // Check if already logged in
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.location.href = 'index.html';
             }
         });
-        
-        // Email/Password Login
+
+        // Email Login
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
+
             showAlert('Logging in...', 'success');
-            
+
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                console.log('Login success:', userCredential.user.email);
+                await signInWithEmailAndPassword(auth, email, password);
                 showAlert('Login successful! Redirecting...', 'success');
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 1500);
             } catch (error) {
-                console.error('Login error:', error);
                 let message = error.message;
                 if (error.code === 'auth/user-not-found') {
-                    message = 'No account found with this email. Please register first.';
+                    message = 'No account found. Please register first.';
                 } else if (error.code === 'auth/wrong-password') {
                     message = 'Incorrect password. Please try again.';
                 }
                 showAlert(message, 'error');
             }
         });
-        
-        // Google Sign In
-        document.getElementById('googleSignInBtn').addEventListener('click', async () => {
-            showAlert('Redirecting to Google...', 'success');
+
+        // Google Login (FIXED)
+        googleSignInBtn.addEventListener('click', async () => {
+            googleSignInBtn.disabled = true;
+            googleSignInBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Signing in...';
+
             try {
                 const result = await signInWithPopup(auth, googleProvider);
-                console.log('Google login success:', result.user.email);
+                console.log('Google user:', result.user.email);
                 showAlert('Google login successful! Redirecting...', 'success');
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 1500);
             } catch (error) {
-                console.error('Google login error:', error);
+                console.error(error);
                 showAlert(error.message, 'error');
+                googleSignInBtn.disabled = false;
+                googleSignInBtn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
             }
         });
+
+        // Phone Login - Open modal
+        phoneLoginBtn.addEventListener('click', () => {
+            openPhoneModal();
+        });
+
+        // Send verification code
+        loginSendCodeBtn.addEventListener('click', async () => {
+            const phone = loginPhoneNumber.value.trim();
+            if (!phone) {
+                alert('Please enter your phone number');
+                return;
+            }
+
+            loginSendCodeBtn.disabled = true;
+            loginSendCodeBtn.textContent = 'Sending...';
+
+            try {
+                const verifier = setupRecaptcha('loginRecaptcha');
+                const result = await signInWithPhoneNumber(auth, phone, verifier);
+                loginConfirmationResult = result;
+                loginOtpSection.style.display = 'block';
+                loginSendCodeBtn.style.display = 'none';
+                loginVerifyOtpBtn.style.display = 'block';
+                alert('Verification code sent!');
+            } catch (error) {
+                console.error(error);
+                alert(error.message);
+                loginSendCodeBtn.disabled = false;
+                loginSendCodeBtn.textContent = 'Send verification code';
+            }
+        });
+
+        // Verify OTP and login
+        loginVerifyOtpBtn.addEventListener('click', async () => {
+            const code = loginOtpCode.value.trim();
+            if (!code) {
+                alert('Please enter verification code');
+                return;
+            }
+
+            loginVerifyOtpBtn.disabled = true;
+            loginVerifyOtpBtn.textContent = 'Verifying...';
+
+            try {
+                await loginConfirmationResult.confirm(code);
+                showAlert('Login successful! Redirecting...', 'success');
+                closePhoneModal();
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } catch (error) {
+                console.error(error);
+                alert('Invalid code. Please try again.');
+                loginVerifyOtpBtn.disabled = false;
+                loginVerifyOtpBtn.textContent = 'Verify & Sign In';
+            }
+        });
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            if (event.target === phoneModal) {
+                closePhoneModal();
+            }
+        };
     </script>
 </body>
 </html>

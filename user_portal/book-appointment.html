@@ -6,243 +6,231 @@
     <title>Book Appointment - Wellmeadows</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* Same sidebar/base styles as index.html */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f1f5f9;
-            min-height: 100vh;
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+
+        .sidebar {
+            position: fixed; top: 0; left: 0; height: 100%; width: 280px;
+            background: linear-gradient(180deg, #0f2b3d 0%, #0a1e2c 100%);
+            color: #e2e8f0; transition: all 0.3s; z-index: 100; overflow-y: auto;
         }
-        .top-bar {
-            background: white;
-            padding: 16px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        .sidebar.closed { width: 80px; }
+        .sidebar.closed .sidebar-nav span, .sidebar.closed .logo-text, 
+        .sidebar.closed .logo-sub, .sidebar.closed .user-details { display: none; }
+        .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { font-size: 2rem; color: #4db8ff; }
+        .logo-text { font-size: 1.3rem; font-weight: 700; color: white; }
+        .logo-sub { font-size: 0.7rem; color: #94a3b8; margin-top: 6px; padding-left: 52px; }
+        .toggle-btn {
+            position: absolute; top: 20px; right: -12px; background: #287b9e;
+            border: 2px solid #0f2b3d; border-radius: 50%; width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            color: white; z-index: 101;
         }
-        .logo { font-weight: 700; color: #0f2b3d; font-size: 1.2rem; }
-        .container {
-            max-width: 600px;
-            margin: 60px auto;
-            padding: 0 24px;
+        .sidebar-nav { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+        .nav-item {
+            display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+            border-radius: 12px; color: #cbd5e6; text-decoration: none;
+            font-weight: 500; font-size: 0.9rem; transition: all 0.2s;
         }
-        .card {
-            background: white;
-            border-radius: 24px;
-            padding: 32px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        .nav-item i { width: 24px; font-size: 1.1rem; }
+        .nav-item:hover { background: rgba(77,184,255,0.12); color: white; }
+        .nav-item.active { background: #287b9e; color: white; }
+        .sidebar-footer {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
-        .card h2 { color: #0f2b3d; margin-bottom: 8px; }
-        .doctor-info { color: #287b9e; margin-bottom: 24px; font-size: 0.9rem; }
-        .form-group { margin-bottom: 20px; }
-        label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.75rem;
-            color: #475569;
-            margin-bottom: 6px;
-            text-transform: uppercase;
+        .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .user-avatar { width: 40px; height: 40px; background: #287b9e; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .user-name { font-weight: 600; font-size: 0.85rem; color: white; }
+        .logout-btn {
+            width: 100%; background: rgba(220,38,38,0.2); border: none; color: #fca5a5;
+            padding: 10px; border-radius: 10px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; gap: 8px;
         }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-family: 'Inter', sans-serif;
+        .logout-btn:hover { background: rgba(220,38,38,0.4); color: white; }
+
+        .main-content { margin-left: 280px; padding: 24px 32px; transition: all 0.3s; min-height: 100vh; }
+        .main-content.expanded { margin-left: 80px; }
+        .top-header { margin-bottom: 32px; }
+        .top-header h1 { font-size: 1.8rem; font-weight: 700; color: #0f2b3d; margin-bottom: 8px; }
+
+        .card { background: white; border-radius: 20px; padding: 32px; border: 1px solid #e2e8f0; max-width: 700px; margin: 0 auto; }
+        .card h2 { font-size: 1.3rem; margin-bottom: 8px; color: #0f2b3d; }
+        .card p { color: #64748b; margin-bottom: 24px; }
+        .form-group { margin-bottom: 24px; }
+        label { display: block; font-weight: 600; font-size: 0.75rem; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        select, input, textarea {
+            width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px;
+            font-size: 0.9rem; font-family: 'Inter', sans-serif;
         }
-        input:focus, select:focus { outline: none; border-color: #287b9e; }
-        .btn-book {
-            width: 100%;
-            background: #287b9e;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
+        select:focus, input:focus, textarea:focus { outline: none; border-color: #287b9e; }
+        .doctor-option {
+            padding: 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px;
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px;
         }
-        .btn-book:hover { background: #1a5f7a; }
-        .message {
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            display: none;
+        .doctor-option:hover { border-color: #287b9e; background: #f8fafc; }
+        .doctor-option.selected { border-color: #287b9e; background: #eef2ff; }
+        .doctor-avatar { width: 40px; height: 40px; background: #eef2ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .doctor-info { flex: 1; }
+        .doctor-name { font-weight: 600; margin-bottom: 4px; }
+        .doctor-specialty { font-size: 0.8rem; color: #64748b; }
+        .btn-primary {
+            width: 100%; background: #287b9e; color: white; border: none; padding: 14px;
+            border-radius: 40px; font-weight: 600; cursor: pointer; font-size: 0.9rem;
         }
+        .btn-primary:hover { background: #1a5f7a; }
+        .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+        .message { padding: 12px; border-radius: 12px; margin-bottom: 20px; display: none; }
         .message.success { background: #dcfce7; color: #15803d; display: block; }
         .message.error { background: #fee2e2; color: #b91c1c; display: block; }
-        .back-link {
-            display: block;
-            margin-top: 16px;
-            text-align: center;
-            color: #64748b;
-            text-decoration: none;
+
+        @media (max-width: 768px) {
+            .sidebar { width: 80px; }
+            .sidebar .logo-text, .sidebar .logo-sub, .sidebar .user-details { display: none; }
+            .sidebar .nav-item { justify-content: center; padding: 12px; }
+            .sidebar .nav-item span { display: none; }
+            .main-content { margin-left: 80px; padding: 20px; }
+            .card { padding: 24px; }
         }
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <div class="logo">Wellmeadows</div>
-        <a href="index.html" style="color: #287b9e; text-decoration: none;">← Back</a>
+
+<aside class="sidebar" id="sidebar">
+    <div class="toggle-btn" id="toggleSidebar"><i class="fas fa-chevron-left"></i></div>
+    <div class="sidebar-header">
+        <div class="logo-area"><i class="fas fa-hospital-user logo-icon"></i><div class="logo-text">Wellmeadows</div></div>
+        <div class="logo-sub">Patient Portal</div>
     </div>
-
-    <div class="container">
-        <div class="card">
-            <h2>Book an Appointment</h2>
-            <div class="doctor-info" id="doctorInfo">Loading doctor information...</div>
-            <div id="message" class="message"></div>
-            
-            <form id="appointmentForm">
-                <div class="form-group">
-                    <label>Your Name</label>
-                    <input type="text" id="patientName" required>
-                </div>
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="patientEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="patientPhone" required>
-                </div>
-                <div class="form-group">
-                    <label>Appointment Date</label>
-                    <input type="date" id="appointmentDate" required min="<?php echo date('Y-m-d'); ?>">
-                </div>
-                <div class="form-group">
-                    <label>Appointment Time</label>
-                    <select id="appointmentTime" required>
-                        <option value="09:00">9:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="13:00">1:00 PM</option>
-                        <option value="14:00">2:00 PM</option>
-                        <option value="15:00">3:00 PM</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Reason for Visit</label>
-                    <textarea id="reason" rows="3" placeholder="Briefly describe your symptoms or reason for visit"></textarea>
-                </div>
-                <button type="submit" class="btn-book">Confirm Appointment</button>
-            </form>
-            <a href="index.html" class="back-link">← Browse more doctors</a>
-        </div>
+    <nav class="sidebar-nav">
+        <a href="index.html" class="nav-item"><i class="fas fa-chalkboard-user"></i><span>Dashboard</span></a>
+        <a href="book-appointment.html" class="nav-item active"><i class="fas fa-calendar-plus"></i><span>Book Appointment</span></a>
+        <a href="my-appointments.html" class="nav-item"><i class="fas fa-calendar-check"></i><span>My Appointments</span></a>
+        <a href="doctors.html" class="nav-item"><i class="fas fa-user-md"></i><span>Our Doctors</span></a>
+        <a href="medical-records.html" class="nav-item"><i class="fas fa-notes-medical"></i><span>Medical Records</span></a>
+        <a href="payment.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Payments</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info"><div class="user-avatar"><i class="fas fa-user-circle"></i></div><div class="user-details"><div class="user-name" id="userName">Patient</div></div></div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
+</aside>
 
-    <script src="../shared/supabase-config.js"></script>
-    <script type="module">
-        import { auth, onAuthStateChanged } from './assets/js/firebase-config.js';
-        
-        const SUPABASE_URL = 'https://cqetejeaeasqkafdgjri.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_75JVFc0QWySSyAPQVO-C1g_Udqt9tgQ';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<main class="main-content" id="mainContent">
+    <div class="top-header"><h1>Book an Appointment</h1></div>
+    <div class="card">
+        <h2>Schedule Your Visit</h2>
+        <p>Select a doctor, choose a date, and confirm your appointment.</p>
+        <div id="message" class="message"></div>
+        <form id="appointmentForm">
+            <div class="form-group"><label>Select Doctor</label><div id="doctorsList"></div><input type="hidden" id="selectedDoctorId"></div>
+            <div class="form-group"><label>Appointment Date</label><input type="date" id="appointmentDate" required></div>
+            <div class="form-group"><label>Appointment Time</label>
+                <select id="appointmentTime" required>
+                    <option value="">Select time</option>
+                    <option value="09:00">9:00 AM</option><option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option><option value="13:00">1:00 PM</option>
+                    <option value="14:00">2:00 PM</option><option value="15:00">3:00 PM</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Reason for Visit</label><textarea id="reason" rows="3" placeholder="Describe your symptoms or reason for consultation"></textarea></div>
+            <button type="submit" class="btn-primary">Confirm Appointment</button>
+        </form>
+    </div>
+</main>
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const doctorId = urlParams.get('doctor');
-        const doctorName = urlParams.get('name') || 'our doctor';
-        
-        document.getElementById('doctorInfo').innerHTML = `Selected Doctor: <strong>Dr. ${doctorName}</strong>`;
+<script type="module">
+    import { auth, db, onAuthStateChanged, signOut, collection, addDoc, query, where, getDocs, Timestamp } from './assets/js/firebase-config.js';
 
-        async function sendEmailConfirmation(to, name, details) {
-            try {
-                // For demo, we'll simulate email sending
-                // In production, you would call a Supabase Edge Function
-                console.log(`Email would be sent to: ${to}`);
-                console.log(`Subject: Appointment Confirmation - Wellmeadows Hospital`);
-                console.log(`Body: Dear ${name}, your appointment with Dr. ${details.doctorName} on ${details.date} at ${details.time} is confirmed.`);
-                
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 500));
-                return true;
-            } catch (error) {
-                console.error('Email error:', error);
-                return false;
-            }
+    const doctors = [
+        { id: 1, name: 'Dr. Kian Gape', specialty: 'General Medicine' },
+        { id: 2, name: 'Dr. Allyza Espragera', specialty: 'Cardiology' },
+        { id: 3, name: 'Dr. Mary Nyl Toreta', specialty: 'Pediatrics' },
+        { id: 4, name: 'Dr. Juhaiber Macadato', specialty: 'Surgery' },
+        { id: 5, name: 'Dr. Jennifer Barnedo', specialty: 'Internal Medicine' }
+    ];
+
+    let currentUser = null;
+    let patientId = null;
+    let selectedDoctor = null;
+
+    function renderDoctors() {
+        const container = document.getElementById('doctorsList');
+        container.innerHTML = doctors.map(doc => `
+            <div class="doctor-option" data-id="${doc.id}">
+                <div class="doctor-avatar"><i class="fas fa-user-md"></i></div>
+                <div class="doctor-info">
+                    <div class="doctor-name">${doc.name}</div>
+                    <div class="doctor-specialty">${doc.specialty}</div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+            </div>
+        `).join('');
+        document.querySelectorAll('.doctor-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.doctor-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                selectedDoctor = doctors.find(d => d.id == opt.dataset.id);
+                document.getElementById('selectedDoctorId').value = selectedDoctor.id;
+            });
+        });
+    }
+
+    async function getPatientId(user) {
+        const q = query(collection(db, 'patients'), where("email", "==", user.email));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) return snapshot.docs[0].id;
+        const newRef = await addDoc(collection(db, 'patients'), { email: user.email, firstName: user.displayName?.split(' ')[0] || 'Patient', createdAt: new Date().toISOString() });
+        return newRef.id;
+    }
+
+    document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const doctorId = document.getElementById('selectedDoctorId').value;
+        const appointmentDate = document.getElementById('appointmentDate').value;
+        const appointmentTime = document.getElementById('appointmentTime').value;
+        const reason = document.getElementById('reason').value;
+        const msgDiv = document.getElementById('message');
+
+        if (!doctorId || !appointmentDate || !appointmentTime) {
+            msgDiv.className = 'message error'; msgDiv.innerHTML = 'Please select a doctor, date, and time'; return;
         }
 
-        document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const messageDiv = document.getElementById('message');
-            messageDiv.className = 'message';
-            messageDiv.textContent = 'Processing your appointment...';
-            
-            try {
-                const patientName = document.getElementById('patientName').value;
-                const patientEmail = document.getElementById('patientEmail').value;
-                const patientPhone = document.getElementById('patientPhone').value;
-                const appointmentDate = document.getElementById('appointmentDate').value;
-                const appointmentTime = document.getElementById('appointmentTime').value;
-                const reason = document.getElementById('reason').value;
-                
-                // Check if patient exists, if not create
-                let { data: patient } = await supabase
-                    .from('patient')
-                    .select('*')
-                    .eq('email', patientEmail)
-                    .single();
-                
-                if (!patient) {
-                    const nameParts = patientName.split(' ');
-                    const { data: newPatient } = await supabase
-                        .from('patient')
-                        .insert([{
-                            first_name: nameParts[0],
-                            last_name: nameParts.slice(1).join(' ') || 'Patient',
-                            email: patientEmail,
-                            phone: patientPhone,
-                            date_registered: new Date().toISOString().split('T')[0]
-                        }])
-                        .select();
-                    patient = newPatient[0];
-                }
-                
-                // Create appointment
-                const { data: appointment, error } = await supabase
-                    .from('appointment')
-                    .insert([{
-                        patient_id: patient.patient_id,
-                        staff_id: parseInt(doctorId),
-                        appointment_date: appointmentDate,
-                        appointment_time: appointmentTime,
-                        reason: reason,
-                        status: 'Scheduled'
-                    }])
-                    .select();
-                
-                if (error) throw error;
-                
-                // Send email confirmation
-                const emailSent = await sendEmailConfirmation(patientEmail, patientName, {
-                    doctorName: doctorName,
-                    date: appointmentDate,
-                    time: appointmentTime,
-                    reason: reason
-                });
-                
-                messageDiv.className = 'message success';
-                messageDiv.innerHTML = `✅ Appointment confirmed! ${emailSent ? 'A confirmation email has been sent to your email address.' : ''}<br>Redirecting to your appointments...`;
-                
-                setTimeout(() => {
-                    window.location.href = 'my-appointments.html';
-                }, 3000);
-                
-            } catch (error) {
-                messageDiv.className = 'message error';
-                messageDiv.textContent = 'Error: ' + error.message;
-            }
-        });
-        
-        // Auto-fill if user is logged in
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('patientEmail').value = user.email || '';
-                // You could also fetch patient name from Supabase here
-            }
-        });
-    </script>
+        msgDiv.className = 'message'; msgDiv.innerHTML = 'Booking appointment...';
+        try {
+            await addDoc(collection(db, 'appointments'), {
+                patientId: patientId, patientEmail: currentUser.email,
+                doctorId: selectedDoctor.id, doctorName: selectedDoctor.name, doctorSpecialty: selectedDoctor.specialty,
+                appointmentDate: appointmentDate, appointmentTime: appointmentTime, reason: reason || 'General consultation',
+                status: 'Scheduled', createdAt: Timestamp.now()
+            });
+            msgDiv.className = 'message success'; msgDiv.innerHTML = 'Appointment booked successfully! Redirecting...';
+            setTimeout(() => window.location.href = 'my-appointments.html', 2000);
+        } catch (error) {
+            msgDiv.className = 'message error'; msgDiv.innerHTML = 'Error: ' + error.message;
+        }
+    });
+
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    document.getElementById('toggleSidebar').addEventListener('click', () => {
+        sidebar.classList.toggle('closed');
+        mainContent.classList.toggle('expanded');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = 'login.html'; });
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) { window.location.href = 'login.html'; return; }
+        currentUser = user;
+        patientId = await getPatientId(user);
+        renderDoctors();
+        document.getElementById('appointmentDate').min = new Date().toISOString().split('T')[0];
+    });
+</script>
 </body>
 </html>
